@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Plus, X, Gamepad2, TreePine, Quote, Waves, ArrowLeft } from 'lucide-react-native';
+import { WaveIcon } from '@/components/WaveIcon';
 import Svg, { Path } from 'react-native-svg';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
@@ -81,6 +82,9 @@ export default function TrackScreen() {
   const [breathingCount, setBreathingCount] = useState(4);
   const [currentMantra, setCurrentMantra] = useState(0);
   const [selectedGroundingTechnique, setSelectedGroundingTechnique] = useState<string | null>(null);
+  const [waveAnimation] = useState(new Animated.Value(0));
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [tipOpacity] = useState(new Animated.Value(1));
 
   const mantras = [
     "This feeling is temporary and will pass.",
@@ -91,6 +95,14 @@ export default function TrackScreen() {
     "I choose to respond, not react.",
     "This urge will fade if I don't feed it.",
     "I am stronger than my compulsions."
+  ];
+
+  const urgeSurfTips = [
+    "Focus on your breathing. Notice the urge without judgment. You're riding the wave - it will pass.",
+    "💪 You're doing great! Notice how the urge changes over time.",
+    "Watch the wave crest and fall. Urges always have a peak, then they naturally subside.",
+    "Stay present with the sensation. You don't need to fight it - just observe it like clouds passing.",
+    "Remember: This feeling is temporary. You've surfed waves before and you can do it again."
   ];
 
   useEffect(() => {
@@ -110,6 +122,59 @@ export default function TrackScreen() {
     
     registerOpenCallback(openUrgeSurfFromIndicator);
   }, [registerOpenCallback]);
+
+  // Wave animation effect
+  useEffect(() => {
+    if (session.active) {
+      const startWaveAnimation = () => {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(waveAnimation, {
+              toValue: 1,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(waveAnimation, {
+              toValue: 0,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      };
+      startWaveAnimation();
+    } else {
+      waveAnimation.setValue(0);
+    }
+  }, [session.active, waveAnimation]);
+
+  // Tip rotation effect
+  useEffect(() => {
+    if (session.active) {
+      const tipInterval = setInterval(() => {
+        // Fade out
+        Animated.timing(tipOpacity, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }).start(() => {
+          // Change tip
+          setCurrentTipIndex(prev => (prev + 1) % urgeSurfTips.length);
+          // Fade in
+          Animated.timing(tipOpacity, {
+            toValue: 1,
+            duration: 800,
+            useNativeDriver: true,
+          }).start();
+        });
+      }, 8000); // Change tip every 8 seconds
+
+      return () => clearInterval(tipInterval);
+    } else {
+      setCurrentTipIndex(0);
+      tipOpacity.setValue(1);
+    }
+  }, [session.active, tipOpacity, urgeSurfTips.length]);
 
   useEffect(() => {
     if (successReminders.length > 1) {
@@ -687,7 +752,7 @@ export default function TrackScreen() {
                       style={[styles.toolButton, styles.urgeSurfButton]}
                       onPress={() => handleToolSelect('urgeSurf')}
                     >
-                      <Gamepad2 size={20} color="#FFFFFF" />
+                      <WaveIcon size={20} color="#FFFFFF" />
                       <Text style={styles.toolButtonText}>Urge Surf</Text>
                     </TouchableOpacity>
                     
@@ -730,19 +795,33 @@ export default function TrackScreen() {
                   {selectedTool === 'urgeSurf' && (
                   <View style={styles.toolSection}>
                     <View style={styles.toolHeader}>
-                      <Gamepad2 size={24} color="#4F46E5" />
+                      <WaveIcon size={24} color="#4F46E5" />
                       <Text style={styles.toolTitle}>Urge Surf</Text>
                     </View>
                     <Text style={styles.toolDescription}>
                       Ride the wave of discomfort for 5 minutes without acting
                     </Text>
                     
-                    <View style={styles.toolCard}>
-                      <Gamepad2 size={32} color="#4F46E5" />
+                    <Animated.View style={[
+                      styles.toolCard,
+                      session.active && {
+                        opacity: waveAnimation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0.7, 1],
+                        }),
+                        transform: [{
+                          scale: waveAnimation.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.98, 1.02],
+                          })
+                        }]
+                      }
+                    ]}>
+                      <WaveIcon size={32} color="#4F46E5" />
                       <Text style={styles.toolCardTitle}>
                         {session.active ? `${formatTime(session.timeLeft)}` : 'Ready to surf?'}
                       </Text>
-                    </View>
+                    </Animated.View>
                     
                     {!session.active ? (
                       <>
@@ -763,10 +842,12 @@ export default function TrackScreen() {
                       </>
                     ) : (
                       <View style={styles.activeSession}>
-                        <Text style={styles.activeSessionText}>
-                          Focus on your breathing. Notice the urge without judgment. 
-                          You're riding the wave - it will pass.
-                        </Text>
+                        <Animated.Text style={[
+                          styles.activeSessionText,
+                          { opacity: tipOpacity }
+                        ]}>
+                          {urgeSurfTips[currentTipIndex]}
+                        </Animated.Text>
                         <TouchableOpacity
                           style={styles.stopSessionButton}
                           onPress={stopSession}
