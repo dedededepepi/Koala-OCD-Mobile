@@ -1,10 +1,83 @@
+import React, { useState, useEffect } from 'react';
 import { Tabs } from 'expo-router';
+import { Alert } from 'react-native';
 import { BookOpen, Calendar, ChartBar as BarChart3, Settings } from 'lucide-react-native';
 import { HomeIcon } from '@/components/HomeIcon';
 import { JournalIcon } from '@/components/JournalIcon';
+import { UrgeSurfContext, UrgeSurfSession } from '@/hooks/useUrgeSurfSession';
+import { UrgeSurfIndicator } from '@/components/UrgeSurfIndicator';
 
 export default function TabLayout() {
+  const [urgeSurfSession, setUrgeSurfSession] = useState<UrgeSurfSession>({
+    active: false,
+    timeLeft: 300,
+    startTime: null,
+  });
+
+  const startSession = () => {
+    setUrgeSurfSession({
+      active: true,
+      timeLeft: 300,
+      startTime: Date.now(),
+    });
+  };
+
+  const stopSession = () => {
+    setUrgeSurfSession({
+      active: false,
+      timeLeft: 300,
+      startTime: null,
+    });
+  };
+
+  const updateTimeLeft = (time: number) => {
+    setUrgeSurfSession(prev => ({
+      ...prev,
+      timeLeft: time,
+    }));
+  };
+
+  // Timer effect
+  useEffect(() => {
+    if (!urgeSurfSession.active) return;
+
+    const interval = setInterval(() => {
+      setUrgeSurfSession(prev => {
+        if (prev.timeLeft <= 1) {
+          // Session completed - show celebration
+          setTimeout(() => {
+            Alert.alert('Great job!', 'You successfully rode the wave for 5 minutes! 🌊');
+          }, 100);
+          return {
+            active: false,
+            timeLeft: 300,
+            startTime: null,
+          };
+        }
+        return {
+          ...prev,
+          timeLeft: prev.timeLeft - 1,
+        };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [urgeSurfSession.active]);
+
+  const handleIndicatorPress = () => {
+    // TODO: Navigate back to coping toolbox with urge surf open
+    console.log('Navigate to Urge Surf session');
+  };
+
   return (
+    <UrgeSurfContext.Provider value={{ 
+      session: urgeSurfSession, 
+      startSession, 
+      stopSession, 
+      updateTimeLeft 
+    }}>
+      <UrgeSurfIndicator onPress={handleIndicatorPress} />
+      {/* Tabs component */}
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -69,5 +142,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </UrgeSurfContext.Provider>
   );
 }

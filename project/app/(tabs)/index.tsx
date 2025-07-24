@@ -20,6 +20,7 @@ import * as Haptics from 'expo-haptics';
 import { storageService, UserSettings } from '@/services/storage';
 import { KoalaCelebration } from '@/components/KoalaCelebration';
 import { format } from 'date-fns';
+import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
 
 const { width: screenWidth } = Dimensions.get('window');
 const horizontalPadding = 40; // 20px on each side
@@ -57,6 +58,7 @@ const CopingToolboxIcon = ({ size = 24, color = "#FFFFFF" }) => (
 );
 
 export default function TrackScreen() {
+  const { session: urgeSurfSession, startSession: startUrgeSurf, stopSession: stopUrgeSurf } = useUrgeSurfSession();
   const [todayCount, setTodayCount] = useState(3);
   const [todayResisted, setTodayResisted] = useState(2);
   const [selectedCompulsion, setSelectedCompulsion] = useState<string | null>(null);
@@ -76,8 +78,6 @@ export default function TrackScreen() {
   const [breathingActive, setBreathingActive] = useState(false);
   const [breathingPhase, setBreathingPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
   const [breathingCount, setBreathingCount] = useState(4);
-  const [urgeSurfActive, setUrgeSurfActive] = useState(false);
-  const [urgeSurfTimeLeft, setUrgeSurfTimeLeft] = useState(300); // 5 minutes in seconds
   const [currentMantra, setCurrentMantra] = useState(0);
   const [selectedGroundingTechnique, setSelectedGroundingTechnique] = useState<string | null>(null);
 
@@ -296,8 +296,6 @@ export default function TrackScreen() {
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
     setBreathingActive(false);
-    setUrgeSurfActive(false);
-    setUrgeSurfTimeLeft(300);
   };
 
   const startBreathing = () => {
@@ -346,24 +344,14 @@ export default function TrackScreen() {
     }, 120000);
   };
 
-  const startUrgeSurf = () => {
+  const handleStartUrgeSurf = () => {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    setUrgeSurfActive(true);
-    setUrgeSurfTimeLeft(300);
-    
-    const interval = setInterval(() => {
-      setUrgeSurfTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setUrgeSurfActive(false);
-          Alert.alert('Great job!', 'You successfully rode the wave for 5 minutes! 🌊');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    startUrgeSurf();
+    // Close the modal so user can navigate while session runs
+    setShowCopingToolbox(false);
+    setSelectedTool(null);
   };
 
   const getNewMantra = () => {
@@ -401,8 +389,6 @@ export default function TrackScreen() {
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
     setBreathingActive(false);
-    setUrgeSurfActive(false);
-    setUrgeSurfTimeLeft(300);
   };
 
   const formatTime = (seconds: number) => {
@@ -721,11 +707,11 @@ export default function TrackScreen() {
                     <View style={styles.toolCard}>
                       <Gamepad2 size={32} color="#4F46E5" />
                       <Text style={styles.toolCardTitle}>
-                        {urgeSurfActive ? `${formatTime(urgeSurfTimeLeft)}` : 'Ready to surf?'}
+                        {urgeSurfSession.active ? `${formatTime(urgeSurfSession.timeLeft)}` : 'Ready to surf?'}
                       </Text>
                     </View>
                     
-                    {!urgeSurfActive ? (
+                    {!urgeSurfSession.active ? (
                       <>
                         <Text style={styles.howItWorksTitle}>How it works:</Text>
                         <View style={styles.stepsList}>
@@ -737,7 +723,7 @@ export default function TrackScreen() {
                         
                         <TouchableOpacity
                           style={styles.startButton}
-                          onPress={startUrgeSurf}
+                          onPress={handleStartUrgeSurf}
                         >
                           <Text style={styles.startButtonText}>🏄‍♂️ Ride the Wave</Text>
                         </TouchableOpacity>
