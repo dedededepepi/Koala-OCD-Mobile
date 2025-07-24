@@ -68,7 +68,7 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80, // Just above the tab bar (now 80px tall)
+    bottom: 96, // Just above the tab bar (now 96px tall)
     left: 0,
     right: 0,
     zIndex: 1000,
