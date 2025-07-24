@@ -660,6 +660,7 @@ export default function TrackScreen() {
         visible={showGiveInModal}
         animationType="fade"
         transparent={true}
+        presentationStyle="overFullScreen"
         onRequestClose={handleCancelGiveIn}
       >
         <View style={styles.modalOverlay}>

@@ -390,7 +390,7 @@ export default function JournalScreen() {
         visible={showEditModal}
         animationType="slide"
         presentationStyle="pageSheet"
-        transparent={true}
+        transparent={false}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -485,7 +485,7 @@ export default function JournalScreen() {
         visible={showAddModal}
         animationType="slide"
         presentationStyle="pageSheet"
-        transparent={true}
+        transparent={false}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -633,6 +633,7 @@ export default function JournalScreen() {
         visible={showCustomDatePicker}
         animationType="fade"
         transparent={true}
+        presentationStyle="overFullScreen"
         onRequestClose={handleCancelDate}
       >
         <View style={styles.pickerOverlay}>
@@ -702,6 +703,7 @@ export default function JournalScreen() {
         visible={showCustomTimePicker}
         animationType="fade"
         transparent={true}
+        presentationStyle="overFullScreen"
         onRequestClose={handleCancelTime}
       >
         <View style={styles.pickerOverlay}>
