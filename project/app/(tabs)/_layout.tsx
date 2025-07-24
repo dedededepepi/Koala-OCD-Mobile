@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, router } from 'expo-router';
 import { Alert } from 'react-native';
-import { BookOpen, Calendar, ChartBar as BarChart3, Settings } from 'lucide-react-native';
+import { BookOpen } from 'lucide-react-native';
 import { HomeIcon } from '@/components/HomeIcon';
 import { JournalIcon } from '@/components/JournalIcon';
+import { TimelineIcon } from '@/components/TimelineIcon';
+import { StatsIcon } from '@/components/StatsIcon';
+import { SettingsIcon } from '@/components/SettingsIcon';
 import { UrgeSurfContext, UrgeSurfSession } from '@/hooks/useUrgeSurfSession';
 import { UrgeSurfIndicator } from '@/components/UrgeSurfIndicator';
 
@@ -135,7 +138,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <Calendar size={size} color={color} />
+            <TimelineIcon size={size} color={color} />
           ),
         }}
       />
@@ -144,7 +147,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <BarChart3 size={size} color={color} />
+            <StatsIcon size={size} color={color} />
           ),
         }}
       />
@@ -153,7 +156,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} />
+            <SettingsIcon size={size} color={color} />
           ),
         }}
       />
