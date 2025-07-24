@@ -76,9 +76,9 @@ export default function TabLayout() {
       stopSession, 
       updateTimeLeft 
     }}>
-      <UrgeSurfIndicator onPress={handleIndicatorPress} />
-      {/* Tabs component */}
-    <Tabs
+      <>
+        <UrgeSurfIndicator onPress={handleIndicatorPress} />
+        <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -141,7 +141,8 @@ export default function TabLayout() {
           ),
         }}
       />
-    </Tabs>
+        </Tabs>
+      </>
     </UrgeSurfContext.Provider>
   );
 }
