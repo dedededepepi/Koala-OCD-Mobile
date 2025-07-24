@@ -810,17 +810,17 @@ export default function TrackScreen() {
                           </TouchableOpacity>
                           
                           <TouchableOpacity
-                            style={styles.groundingTechniqueButton}
+                            style={[styles.groundingTechniqueButton, styles.selectedGroundingButton]}
                             onPress={() => handleGroundingTechniqueSelect('bodyScan')}
                           >
-                            <Text style={styles.groundingTechniqueText}>Body Scan</Text>
+                            <Text style={[styles.groundingTechniqueText, styles.selectedGroundingText]}>Body Scan</Text>
                           </TouchableOpacity>
                           
                           <TouchableOpacity
-                            style={styles.groundingTechniqueButton}
+                            style={[styles.groundingTechniqueButton, styles.selectedGroundingButton]}
                             onPress={() => handleGroundingTechniqueSelect('mindfulObservation')}
                           >
-                            <Text style={styles.groundingTechniqueText}>Mindful Observation</Text>
+                            <Text style={[styles.groundingTechniqueText, styles.selectedGroundingText]}>Mindful Observation</Text>
                           </TouchableOpacity>
                         </View>
                       </>
@@ -1041,9 +1041,9 @@ export default function TrackScreen() {
                 
                 <TouchableOpacity
                   style={styles.closeToolboxButton}
-                  onPress={handleCloseCopingToolbox}
+                  onPress={handleBackToTools}
                 >
-                  <Text style={styles.closeToolboxButtonText}>Close Toolbox</Text>
+                  <Text style={styles.closeToolboxButtonText}>← Back to Toolbox</Text>
                 </TouchableOpacity>
                 </View>
               )}
