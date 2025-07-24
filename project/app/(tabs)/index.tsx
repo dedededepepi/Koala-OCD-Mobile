@@ -696,6 +696,14 @@ export default function TrackScreen() {
                       <Text style={styles.toolButtonText}>Mantras</Text>
                     </TouchableOpacity>
                   </View>
+                  
+                  {/* Close Toolbox Button on Selection Page */}
+                  <TouchableOpacity
+                    style={styles.closeToolboxButton}
+                    onPress={handleCloseCopingToolbox}
+                  >
+                    <Text style={styles.closeToolboxButtonText}>Close Toolbox</Text>
+                  </TouchableOpacity>
                 </>
               ) : (
                 <View style={styles.toolContent}>
