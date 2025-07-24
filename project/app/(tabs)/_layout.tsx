@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, router } from 'expo-router';
 import { Alert } from 'react-native';
 import { BookOpen, Calendar, ChartBar as BarChart3, Settings } from 'lucide-react-native';
@@ -38,11 +38,11 @@ export default function TabLayout() {
     }));
   };
 
-  const registerOpenCallback = (callback: () => void) => {
+  const registerOpenCallback = useCallback((callback: () => void) => {
     setNavigationCallback(() => callback);
-  };
+  }, []);
 
-  const openUrgeSurfToolbox = () => {
+  const openUrgeSurfToolbox = useCallback(() => {
     // Navigate to index tab and trigger coping toolbox
     router.navigate('/(tabs)');
     setTimeout(() => {
@@ -50,7 +50,7 @@ export default function TabLayout() {
         navigationCallback();
       }
     }, 100); // Small delay to ensure navigation completes
-  };
+  }, [navigationCallback]);
 
   // Timer effect
   useEffect(() => {
