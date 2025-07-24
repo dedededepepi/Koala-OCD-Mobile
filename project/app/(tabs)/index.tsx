@@ -365,9 +365,8 @@ export default function TrackScreen() {
     }
     console.log('Starting Urge Surf session...');
     startSession();
-    // Close the modal so user can navigate while session runs
-    setShowCopingToolbox(false);
-    setSelectedTool(null);
+    // Keep user on the Urge Surf page - don't close the modal
+    // They can close it manually if they want to navigate
   };
 
   // Timer effect is now handled in _layout.tsx context
