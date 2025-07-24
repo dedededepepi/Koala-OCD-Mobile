@@ -803,10 +803,10 @@ export default function TrackScreen() {
                         
                         <View style={styles.groundingTechniques}>
                           <TouchableOpacity
-                            style={styles.groundingTechniqueButton}
+                            style={[styles.groundingTechniqueButton, styles.selectedGroundingButton]}
                             onPress={() => handleGroundingTechniqueSelect('5-4-3-2-1')}
                           >
-                            <Text style={styles.groundingTechniqueText}>5-4-3-2-1 Technique</Text>
+                            <Text style={[styles.groundingTechniqueText, styles.selectedGroundingText]}>5-4-3-2-1 Technique</Text>
                           </TouchableOpacity>
                           
                           <TouchableOpacity
@@ -817,10 +817,10 @@ export default function TrackScreen() {
                           </TouchableOpacity>
                           
                           <TouchableOpacity
-                            style={[styles.groundingTechniqueButton, styles.selectedGroundingButton]}
+                            style={styles.groundingTechniqueButton}
                             onPress={() => handleGroundingTechniqueSelect('mindfulObservation')}
                           >
-                            <Text style={[styles.groundingTechniqueText, styles.selectedGroundingText]}>Mindful Observation</Text>
+                            <Text style={styles.groundingTechniqueText}>Mindful Observation</Text>
                           </TouchableOpacity>
                         </View>
                       </>
@@ -1013,7 +1013,7 @@ export default function TrackScreen() {
                       style={styles.newMantraButton}
                       onPress={getNewMantra}
                     >
-                      <Text style={styles.startButtonText}>🏄‍♂️ Ride the Wave</Text>
+                      <Text style={styles.startButtonText}>✨ New Mantra</Text>
                     </TouchableOpacity>
                     
                     <Text style={styles.mantrasListTitle}>All Available Mantras:</Text>
