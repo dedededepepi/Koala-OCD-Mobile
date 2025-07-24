@@ -573,13 +573,13 @@ export default function TrackScreen() {
         <CopingToolboxIcon size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
-      {/* Draggable Urge Surf FAB */}
-      {console.log('UrgeSurf state:', session.active, session.timeLeft)}
+      {/* Draggable Urge Surf FAB - Disabled for now, using top indicator instead */}
+      {/* {console.log('UrgeSurf state:', session.active, session.timeLeft)}
       <DraggableUrgeSurfFAB 
         active={session.active}
         timeLeft={session.timeLeft}
         onPress={handleFABPress}
-      />
+      /> */}
 
       {/* Give In Confirmation Modal */}
       <Modal
