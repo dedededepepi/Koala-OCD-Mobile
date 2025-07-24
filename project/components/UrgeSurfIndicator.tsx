@@ -15,10 +15,6 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
   const [slideAnimation] = useState(new Animated.Value(0));
   const [progressAnimation] = useState(new Animated.Value(0));
 
-  if (!session.active) {
-    return null;
-  }
-
   // Update progress animation based on time remaining
   useEffect(() => {
     if (session.active) {
@@ -30,6 +26,10 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
       }).start();
     }
   }, [session.timeLeft, session.active, progressAnimation]);
+
+  if (!session.active) {
+    return null;
+  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
