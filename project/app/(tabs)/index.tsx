@@ -739,8 +739,7 @@ export default function TrackScreen() {
                           style={styles.startButton}
                           onPress={startUrgeSurf}
                         >
-                          <Waves size={16} color="#FFFFFF" />
-                          <Text style={styles.startButtonText}>Ride the Wave</Text>
+                          <Text style={styles.startButtonText}>🏄‍♂️ Ride the Wave</Text>
                         </TouchableOpacity>
                       </>
                     ) : (
