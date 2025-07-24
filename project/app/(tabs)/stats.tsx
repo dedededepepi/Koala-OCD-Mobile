@@ -182,7 +182,7 @@ export default function StatsScreen() {
         </Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Hero Card */}
         <View style={styles.heroCard}>
           <Text style={styles.heroNumber}>{streakDays}</Text>
@@ -459,6 +459,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
+  },
+  contentContainer: {
+    paddingBottom: 120, // Extra space above tab bar
   },
   heroCard: {
     backgroundColor: '#8B5CF6',

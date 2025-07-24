@@ -292,7 +292,7 @@ export default function JournalScreen() {
         </Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         <TouchableOpacity 
           style={styles.addButton}
           onPress={handleAddManualEntry}
@@ -849,6 +849,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
+  },
+  contentContainer: {
+    paddingBottom: 120, // Extra space above tab bar
   },
   addButton: {
     backgroundColor: '#4F46E5',

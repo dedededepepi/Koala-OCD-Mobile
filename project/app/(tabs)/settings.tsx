@@ -169,7 +169,7 @@ export default function SettingsScreen() {
         </Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Appearance */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -428,6 +428,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 24,
+  },
+  contentContainer: {
+    paddingBottom: 120, // Extra space above tab bar
   },
   card: {
     backgroundColor: '#FFFFFF',

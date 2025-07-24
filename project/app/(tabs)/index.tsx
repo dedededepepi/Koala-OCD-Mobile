@@ -473,7 +473,7 @@ export default function TrackScreen() {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.titleRow}>
@@ -1153,6 +1153,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 120, // Extra space above tab bar (96px) + indicator
   },
   header: {
     paddingHorizontal: 20,
