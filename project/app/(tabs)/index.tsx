@@ -20,7 +20,7 @@ import * as Haptics from 'expo-haptics';
 import { storageService, UserSettings } from '@/services/storage';
 import { KoalaCelebration } from '@/components/KoalaCelebration';
 import { format } from 'date-fns';
-import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
+import { DraggableUrgeSurfFAB } from '@/components/DraggableUrgeSurfFAB';
 
 const { width: screenWidth } = Dimensions.get('window');
 const horizontalPadding = 40; // 20px on each side
@@ -58,7 +58,8 @@ const CopingToolboxIcon = ({ size = 24, color = "#FFFFFF" }) => (
 );
 
 export default function TrackScreen() {
-  const { session: urgeSurfSession, startSession: startUrgeSurf, stopSession: stopUrgeSurf } = useUrgeSurfSession();
+  const [urgeSurfActive, setUrgeSurfActive] = useState(false);
+  const [urgeSurfTimeLeft, setUrgeSurfTimeLeft] = useState(300);
   const [todayCount, setTodayCount] = useState(3);
   const [todayResisted, setTodayResisted] = useState(2);
   const [selectedCompulsion, setSelectedCompulsion] = useState<string | null>(null);
@@ -348,11 +349,30 @@ export default function TrackScreen() {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    startUrgeSurf();
+    setUrgeSurfActive(true);
+    setUrgeSurfTimeLeft(300);
     // Close the modal so user can navigate while session runs
     setShowCopingToolbox(false);
     setSelectedTool(null);
   };
+
+  // Urge surf timer effect
+  useEffect(() => {
+    if (!urgeSurfActive) return;
+
+    const interval = setInterval(() => {
+      setUrgeSurfTimeLeft(prev => {
+        if (prev <= 1) {
+          setUrgeSurfActive(false);
+          Alert.alert('Great job!', 'You successfully rode the wave for 5 minutes! 🌊');
+          return 300;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [urgeSurfActive]);
 
   const getNewMantra = () => {
     if (Platform.OS !== 'web') {
@@ -395,6 +415,12 @@ export default function TrackScreen() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleFABPress = () => {
+    // Open coping toolbox and navigate to urge surf
+    setShowCopingToolbox(true);
+    setSelectedTool('urgeSurf');
   };
 
   const successRate = todayCount > 0 ? Math.round((todayResisted / todayCount) * 100) : 67;
@@ -558,6 +584,13 @@ export default function TrackScreen() {
         <CopingToolboxIcon size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
+      {/* Draggable Urge Surf FAB */}
+      <DraggableUrgeSurfFAB 
+        active={urgeSurfActive}
+        timeLeft={urgeSurfTimeLeft}
+        onPress={handleFABPress}
+      />
+
       {/* Give In Confirmation Modal */}
       <Modal
         visible={showGiveInModal}
@@ -707,11 +740,11 @@ export default function TrackScreen() {
                     <View style={styles.toolCard}>
                       <Gamepad2 size={32} color="#4F46E5" />
                       <Text style={styles.toolCardTitle}>
-                        {urgeSurfSession.active ? `${formatTime(urgeSurfSession.timeLeft)}` : 'Ready to surf?'}
+                        {urgeSurfActive ? `${formatTime(urgeSurfTimeLeft)}` : 'Ready to surf?'}
                       </Text>
                     </View>
                     
-                    {!urgeSurfSession.active ? (
+                    {!urgeSurfActive ? (
                       <>
                         <Text style={styles.howItWorksTitle}>How it works:</Text>
                         <View style={styles.stepsList}>
