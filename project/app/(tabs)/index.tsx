@@ -21,6 +21,7 @@ import { storageService, UserSettings } from '@/services/storage';
 import { KoalaCelebration } from '@/components/KoalaCelebration';
 import { format } from 'date-fns';
 import { DraggableUrgeSurfFAB } from '@/components/DraggableUrgeSurfFAB';
+import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
 
 const { width: screenWidth } = Dimensions.get('window');
 const horizontalPadding = 40; // 20px on each side
@@ -58,8 +59,7 @@ const CopingToolboxIcon = ({ size = 24, color = "#FFFFFF" }) => (
 );
 
 export default function TrackScreen() {
-  const [urgeSurfActive, setUrgeSurfActive] = useState(false);
-  const [urgeSurfTimeLeft, setUrgeSurfTimeLeft] = useState(300);
+  const { session, startSession, stopSession } = useUrgeSurfSession();
   const [todayCount, setTodayCount] = useState(3);
   const [todayResisted, setTodayResisted] = useState(2);
   const [selectedCompulsion, setSelectedCompulsion] = useState<string | null>(null);
@@ -297,6 +297,7 @@ export default function TrackScreen() {
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
     setBreathingActive(false);
+    // DON'T reset urgeSurfActive - it should persist
   };
 
   const startBreathing = () => {
@@ -346,34 +347,20 @@ export default function TrackScreen() {
   };
 
   const handleStartUrgeSurf = () => {
+    // Prevent starting multiple sessions
+    if (session.active) return;
+    
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     console.log('Starting Urge Surf session...');
-    setUrgeSurfActive(true);
-    setUrgeSurfTimeLeft(300);
+    startSession();
     // Close the modal so user can navigate while session runs
     setShowCopingToolbox(false);
     setSelectedTool(null);
   };
 
-  // Urge surf timer effect
-  useEffect(() => {
-    if (!urgeSurfActive) return;
-
-    const interval = setInterval(() => {
-      setUrgeSurfTimeLeft(prev => {
-        if (prev <= 1) {
-          setUrgeSurfActive(false);
-          Alert.alert('Great job!', 'You successfully rode the wave for 5 minutes! 🌊');
-          return 300;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [urgeSurfActive]);
+  // Timer effect is now handled in _layout.tsx context
 
   const getNewMantra = () => {
     if (Platform.OS !== 'web') {
@@ -410,6 +397,7 @@ export default function TrackScreen() {
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
     setBreathingActive(false);
+    // DON'T reset urgeSurfActive - it should persist
   };
 
   const formatTime = (seconds: number) => {
@@ -586,10 +574,10 @@ export default function TrackScreen() {
       </TouchableOpacity>
 
       {/* Draggable Urge Surf FAB */}
-      {console.log('UrgeSurf state:', urgeSurfActive, urgeSurfTimeLeft)}
+      {console.log('UrgeSurf state:', session.active, session.timeLeft)}
       <DraggableUrgeSurfFAB 
-        active={urgeSurfActive}
-        timeLeft={urgeSurfTimeLeft}
+        active={session.active}
+        timeLeft={session.timeLeft}
         onPress={handleFABPress}
       />
 
@@ -742,11 +730,11 @@ export default function TrackScreen() {
                     <View style={styles.toolCard}>
                       <Gamepad2 size={32} color="#4F46E5" />
                       <Text style={styles.toolCardTitle}>
-                        {urgeSurfActive ? `${formatTime(urgeSurfTimeLeft)}` : 'Ready to surf?'}
+                        {session.active ? `${formatTime(session.timeLeft)}` : 'Ready to surf?'}
                       </Text>
                     </View>
                     
-                    {!urgeSurfActive ? (
+                    {!session.active ? (
                       <>
                         <Text style={styles.howItWorksTitle}>How it works:</Text>
                         <View style={styles.stepsList}>
@@ -769,6 +757,12 @@ export default function TrackScreen() {
                           Focus on your breathing. Notice the urge without judgment. 
                           You're riding the wave - it will pass.
                         </Text>
+                        <TouchableOpacity
+                          style={styles.stopSessionButton}
+                          onPress={stopSession}
+                        >
+                          <Text style={styles.stopSessionText}>Stop Session</Text>
+                        </TouchableOpacity>
                       </View>
                     )}
                   </View>
@@ -1717,5 +1711,18 @@ const styles = StyleSheet.create({
   },
   selectedGroundingText: {
     color: '#FFFFFF',
+  },
+  stopSessionButton: {
+    backgroundColor: '#DC2626',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  stopSessionText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

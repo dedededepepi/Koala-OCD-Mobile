@@ -15,7 +15,9 @@
       "Bash(git branch:*)",
       "Bash(git remote add:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm start)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }
