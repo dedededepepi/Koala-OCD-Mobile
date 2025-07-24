@@ -83,6 +83,9 @@ export default function TrackScreen() {
   const [currentMantra, setCurrentMantra] = useState(0);
   const [selectedGroundingTechnique, setSelectedGroundingTechnique] = useState<string | null>(null);
   const [waveAnimation] = useState(new Animated.Value(0));
+  const [waveOffset1] = useState(new Animated.Value(0));
+  const [waveOffset2] = useState(new Animated.Value(0));
+  const [waveOffset3] = useState(new Animated.Value(0));
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [tipOpacity] = useState(new Animated.Value(1));
 
@@ -127,19 +130,29 @@ export default function TrackScreen() {
   useEffect(() => {
     if (session.active) {
       const startWaveAnimation = () => {
+        // Create multiple wave layers with different speeds for realistic ocean effect
         Animated.loop(
-          Animated.sequence([
-            Animated.timing(waveAnimation, {
-              toValue: 1,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-            Animated.timing(waveAnimation, {
-              toValue: 0,
-              duration: 2000,
-              useNativeDriver: true,
-            }),
-          ])
+          Animated.timing(waveOffset1, {
+            toValue: 1,
+            duration: 4000, // Slow base wave
+            useNativeDriver: true,
+          })
+        ).start();
+        
+        Animated.loop(
+          Animated.timing(waveOffset2, {
+            toValue: 1,
+            duration: 3000, // Medium wave
+            useNativeDriver: true,
+          })
+        ).start();
+        
+        Animated.loop(
+          Animated.timing(waveOffset3, {
+            toValue: 1,
+            duration: 2500, // Fast foam layer
+            useNativeDriver: true,
+          })
         ).start();
       };
       
@@ -148,10 +161,14 @@ export default function TrackScreen() {
       return () => clearTimeout(timeout);
     } else {
       // Use timeout to avoid setValue during render
-      const timeout = setTimeout(() => waveAnimation.setValue(0), 0);
+      const timeout = setTimeout(() => {
+        waveOffset1.setValue(0);
+        waveOffset2.setValue(0);
+        waveOffset3.setValue(0);
+      }, 0);
       return () => clearTimeout(timeout);
     }
-  }, [session.active, waveAnimation]);
+  }, [session.active, waveOffset1, waveOffset2, waveOffset3]);
 
   // Tip rotation effect
   useEffect(() => {
@@ -812,26 +829,59 @@ export default function TrackScreen() {
                       Ride the wave of discomfort for 5 minutes without acting
                     </Text>
                     
-                    <Animated.View style={[
-                      styles.toolCard,
-                      session.active && {
-                        opacity: waveAnimation.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.7, 1],
-                        }),
-                        transform: [{
-                          scale: waveAnimation.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0.98, 1.02],
-                          })
-                        }]
-                      }
-                    ]}>
+                    <View style={styles.toolCard}>
+                      {/* Multi-layer wave animation */}
+                      {session.active && (
+                        <View style={styles.waveContainer}>
+                          {/* Base wave layer */}
+                          <Animated.View style={[
+                            styles.waveLayer,
+                            styles.baseWave,
+                            {
+                              transform: [{
+                                translateX: waveOffset1.interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [-400, 400],
+                                })
+                              }]
+                            }
+                          ]} />
+                          
+                          {/* Medium wave layer */}
+                          <Animated.View style={[
+                            styles.waveLayer,
+                            styles.mediumWave,
+                            {
+                              transform: [{
+                                translateX: waveOffset2.interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [-350, 350],
+                                })
+                              }]
+                            }
+                          ]} />
+                          
+                          {/* Foam/whitecap layer */}
+                          <Animated.View style={[
+                            styles.waveLayer,
+                            styles.foamWave,
+                            {
+                              transform: [{
+                                translateX: waveOffset3.interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: [-300, 300],
+                                })
+                              }]
+                            }
+                          ]} />
+                        </View>
+                      )}
+                      
                       <WaveIcon size={32} color="#4F46E5" />
                       <Text style={styles.toolCardTitle}>
                         {session.active ? `${formatTime(session.timeLeft)}` : 'Ready to surf?'}
                       </Text>
-                    </Animated.View>
+                    </View>
                     
                     {!session.active ? (
                       <>
@@ -1637,6 +1687,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 20,
     marginVertical: 16,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  waveContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+  },
+  waveLayer: {
+    position: 'absolute',
+    height: '100%',
+    width: 800, // Wide enough for smooth animation
+    borderRadius: 16,
+  },
+  baseWave: {
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+    bottom: 0,
+    height: '60%',
+  },
+  mediumWave: {
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    bottom: 10,
+    height: '40%',
+  },
+  foamWave: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    bottom: 20,
+    height: '20%',
   },
   toolCardTitle: {
     fontSize: 22,
