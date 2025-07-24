@@ -349,6 +349,7 @@ export default function TrackScreen() {
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    console.log('Starting Urge Surf session...');
     setUrgeSurfActive(true);
     setUrgeSurfTimeLeft(300);
     // Close the modal so user can navigate while session runs
@@ -585,6 +586,7 @@ export default function TrackScreen() {
       </TouchableOpacity>
 
       {/* Draggable Urge Surf FAB */}
+      {console.log('UrgeSurf state:', urgeSurfActive, urgeSurfTimeLeft)}
       <DraggableUrgeSurfFAB 
         active={urgeSurfActive}
         timeLeft={urgeSurfTimeLeft}

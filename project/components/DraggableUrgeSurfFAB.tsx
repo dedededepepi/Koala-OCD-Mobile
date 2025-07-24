@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
@@ -11,9 +11,6 @@ interface DraggableUrgeSurfFABProps {
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export function DraggableUrgeSurfFAB({ active, timeLeft, onPress }: DraggableUrgeSurfFABProps) {
-  const translateX = useRef(new Animated.Value(20)).current; // Start at bottom left
-  const translateY = useRef(new Animated.Value(screenHeight - 200)).current;
-
   if (!active) {
     return null;
   }
@@ -24,62 +21,22 @@ export function DraggableUrgeSurfFAB({ active, timeLeft, onPress }: DraggableUrg
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleGestureEvent = Animated.event(
-    [{ nativeEvent: { translationX: translateX, translationY: translateY } }],
-    { useNativeDriver: true }
-  );
-
-  const handleHandlerStateChange = (event: any) => {
-    if (event.nativeEvent.state === State.END) {
-      // Snap to edges or keep current position
-      const { translationX: finalX, translationY: finalY } = event.nativeEvent;
-      
-      // Constrain to screen bounds
-      const boundedX = Math.max(0, Math.min(screenWidth - 120, finalX));
-      const boundedY = Math.max(50, Math.min(screenHeight - 200, finalY));
-      
-      // Animate to final position
-      Animated.parallel([
-        Animated.spring(translateX, {
-          toValue: boundedX,
-          useNativeDriver: true,
-        }),
-        Animated.spring(translateY, {
-          toValue: boundedY,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  };
-
+  // Simplified version - just show a fixed FAB first to test
   return (
-    <PanGestureHandler
-      onGestureEvent={handleGestureEvent}
-      onHandlerStateChange={handleHandlerStateChange}
-    >
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            transform: [
-              { translateX },
-              { translateY },
-            ],
-          },
-        ]}
-      >
-        <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}>
-          <Text style={styles.emoji}>🏄‍♂️</Text>
-          <Text style={styles.time}>{formatTime(timeLeft)}</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </PanGestureHandler>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}>
+        <Text style={styles.emoji}>🏄‍♂️</Text>
+        <Text style={styles.time}>{formatTime(timeLeft)}</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
+    bottom: 120,
+    left: 20,
     zIndex: 1000,
   },
   fab: {
