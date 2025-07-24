@@ -142,9 +142,14 @@ export default function TrackScreen() {
           ])
         ).start();
       };
-      startWaveAnimation();
+      
+      // Use a small timeout to avoid scheduling updates during render
+      const timeout = setTimeout(startWaveAnimation, 0);
+      return () => clearTimeout(timeout);
     } else {
-      waveAnimation.setValue(0);
+      // Use timeout to avoid setValue during render
+      const timeout = setTimeout(() => waveAnimation.setValue(0), 0);
+      return () => clearTimeout(timeout);
     }
   }, [session.active, waveAnimation]);
 
@@ -171,8 +176,12 @@ export default function TrackScreen() {
 
       return () => clearInterval(tipInterval);
     } else {
-      setCurrentTipIndex(0);
-      tipOpacity.setValue(1);
+      // Use timeout to avoid setValue during render
+      const timeout = setTimeout(() => {
+        setCurrentTipIndex(0);
+        tipOpacity.setValue(1);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
   }, [session.active, tipOpacity, urgeSurfTips.length]);
 
