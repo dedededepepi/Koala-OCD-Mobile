@@ -71,13 +71,13 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
             transform: [{
               translateY: slideAnimation.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, isMinimized ? 45 : 0], // Slide down to show just the line
+                outputRange: [0, 40], // Slide down to hide behind tab bar, leaving only progress line visible
               })
             }]
           }
         ]}
       >
-        {/* Progress bar background */}
+        {/* Progress bar background - at top of indicator */}
         <View style={styles.progressBackground}>
           <Animated.View 
             style={[
@@ -120,11 +120,14 @@ const styles = StyleSheet.create({
   },
   progressBackground: {
     position: 'absolute',
-    bottom: 0,
+    top: 0,
     left: 0,
     right: 0,
     height: 3,
     backgroundColor: 'rgba(56, 189, 248, 0.3)',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
