@@ -59,7 +59,7 @@ const CopingToolboxIcon = ({ size = 24, color = "#FFFFFF" }) => (
 );
 
 export default function TrackScreen() {
-  const { session, startSession, stopSession } = useUrgeSurfSession();
+  const { session, startSession, stopSession, registerOpenCallback } = useUrgeSurfSession();
   const [todayCount, setTodayCount] = useState(3);
   const [todayResisted, setTodayResisted] = useState(2);
   const [selectedCompulsion, setSelectedCompulsion] = useState<string | null>(null);
@@ -100,6 +100,16 @@ export default function TrackScreen() {
     // Rotate tip every time the modal might be shown
     setCurrentTip(Math.floor(Math.random() * motivationalTips.length));
   }, []);
+
+  // Register callback for external navigation to Urge Surf
+  useEffect(() => {
+    const openUrgeSurfFromIndicator = () => {
+      setShowCopingToolbox(true);
+      setSelectedTool('urgeSurf');
+    };
+    
+    registerOpenCallback(openUrgeSurfFromIndicator);
+  }, [registerOpenCallback]);
 
   useEffect(() => {
     if (successReminders.length > 1) {

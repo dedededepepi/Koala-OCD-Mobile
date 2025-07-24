@@ -11,6 +11,8 @@ export interface UrgeSurfContextType {
   startSession: () => void;
   stopSession: () => void;
   updateTimeLeft: (time: number) => void;
+  openUrgeSurfToolbox: () => void;
+  registerOpenCallback: (callback: () => void) => void;
 }
 
 export const UrgeSurfContext = createContext<UrgeSurfContextType | null>(null);

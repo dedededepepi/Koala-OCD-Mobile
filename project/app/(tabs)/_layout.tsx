@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import { Alert } from 'react-native';
 import { BookOpen, Calendar, ChartBar as BarChart3, Settings } from 'lucide-react-native';
 import { HomeIcon } from '@/components/HomeIcon';
@@ -13,6 +13,7 @@ export default function TabLayout() {
     timeLeft: 300,
     startTime: null,
   });
+  const [navigationCallback, setNavigationCallback] = useState<(() => void) | null>(null);
 
   const startSession = () => {
     setUrgeSurfSession({
@@ -35,6 +36,20 @@ export default function TabLayout() {
       ...prev,
       timeLeft: time,
     }));
+  };
+
+  const registerOpenCallback = (callback: () => void) => {
+    setNavigationCallback(() => callback);
+  };
+
+  const openUrgeSurfToolbox = () => {
+    // Navigate to index tab and trigger coping toolbox
+    router.navigate('/(tabs)');
+    setTimeout(() => {
+      if (navigationCallback) {
+        navigationCallback();
+      }
+    }, 100); // Small delay to ensure navigation completes
   };
 
   // Timer effect
@@ -65,8 +80,7 @@ export default function TabLayout() {
   }, [urgeSurfSession.active]);
 
   const handleIndicatorPress = () => {
-    // TODO: Navigate back to coping toolbox with urge surf open
-    console.log('Navigate to Urge Surf session');
+    openUrgeSurfToolbox();
   };
 
   return (
@@ -74,7 +88,9 @@ export default function TabLayout() {
       session: urgeSurfSession, 
       startSession, 
       stopSession, 
-      updateTimeLeft 
+      updateTimeLeft,
+      openUrgeSurfToolbox,
+      registerOpenCallback
     }}>
       <>
         <UrgeSurfIndicator onPress={handleIndicatorPress} />
