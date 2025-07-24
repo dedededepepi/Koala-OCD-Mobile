@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
-
-const { width: screenWidth } = Dimensions.get('window');
 
 interface UrgeSurfIndicatorProps {
   onPress: () => void;
@@ -11,8 +8,6 @@ interface UrgeSurfIndicatorProps {
 
 export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
   const { session } = useUrgeSurfSession();
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [slideAnimation] = useState(new Animated.Value(0));
   const [progressAnimation] = useState(new Animated.Value(0));
 
   // Update progress animation based on time remaining
@@ -37,102 +32,46 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSwipeGesture = (event: any) => {
-    const { nativeEvent } = event;
-    
-    if (nativeEvent.state === State.END) {
-      // If user swiped down more than 30 pixels
-      if (nativeEvent.translationY > 30) {
-        setIsMinimized(true);
-        Animated.timing(slideAnimation, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-      // If user swiped up while minimized
-      else if (nativeEvent.translationY < -30 && isMinimized) {
-        setIsMinimized(false);
-        Animated.timing(slideAnimation, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-    }
-  };
-
   return (
-    <PanGestureHandler onHandlerStateChange={handleSwipeGesture}>
-      <Animated.View 
-        style={[
-          styles.container,
-          {
-            transform: [{
-              translateY: slideAnimation.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, 40], // Slide down to hide behind tab bar, leaving only progress line visible
-              })
-            }]
-          }
-        ]}
+    <View style={styles.container}>
+      {/* Main indicator content */}
+      <TouchableOpacity 
+        style={styles.indicator} 
+        onPress={onPress} 
+        activeOpacity={0.8}
       >
-        {/* Progress bar background - at top of indicator */}
-        <View style={styles.progressBackground}>
-          <Animated.View 
-            style={[
-              styles.progressBar,
-              {
-                width: progressAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['0%', '100%'],
-                }),
-              }
-            ]}
-          />
+        <Text style={styles.emoji}>🏄‍♂️</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>Urge Surf</Text>
+          <Text style={styles.time}>{formatTime(session.timeLeft)} remaining</Text>
         </View>
-        
-        {/* Main indicator content */}
-        <TouchableOpacity 
-          style={styles.indicator} 
-          onPress={onPress} 
-          activeOpacity={0.8}
-        >
-          <Text style={styles.emoji}>🏄‍♂️</Text>
-          <View style={styles.textContainer}>
-            <Text style={styles.title}>Urge Surf</Text>
-            <Text style={styles.time}>{formatTime(session.timeLeft)} remaining</Text>
-          </View>
-          <Text style={styles.swipeHint}>⬇</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </PanGestureHandler>
+      </TouchableOpacity>
+      
+      {/* Progress bar at bottom */}
+      <View style={styles.progressBackground}>
+        <Animated.View 
+          style={[
+            styles.progressBar,
+            {
+              width: progressAnimation.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%'],
+              }),
+            }
+          ]}
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 64, // Just above the tab bar (tab bar height is 64)
+    bottom: 64, // Just above the tab bar
     left: 0,
     right: 0,
     zIndex: 1000,
-  },
-  progressBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-    backgroundColor: 'rgba(56, 189, 248, 0.3)',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#1E40AF', // Darker blue
-    borderRadius: 1.5,
   },
   indicator: {
     backgroundColor: '#38BDF8',
@@ -141,7 +80,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 6, // Much thinner - reduced from 12 to 6
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
@@ -151,28 +90,35 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   emoji: {
-    fontSize: 20,
-    marginRight: 12,
+    fontSize: 16, // Slightly smaller
+    marginRight: 10,
   },
   textContainer: {
     flex: 1,
   },
   title: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 12, // Smaller text
     fontWeight: '600',
     fontFamily: 'NotoSansJP-SemiBold',
   },
   time: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 10, // Smaller text
     opacity: 0.9,
     fontFamily: 'NotoSansJP-Regular',
   },
-  swipeHint: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    opacity: 0.7,
-    marginLeft: 8,
+  progressBackground: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: 'rgba(56, 189, 248, 0.3)',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#1E40AF', // Darker blue
+    borderRadius: 1.5,
   },
 });
