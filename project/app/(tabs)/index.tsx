@@ -15,6 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Plus, X, Gamepad2, TreePine, Quote, Waves, ArrowLeft } from 'lucide-react-native';
 import { WaveIcon } from '@/components/WaveIcon';
+import { Image } from 'expo-image';
 import Svg, { Path } from 'react-native-svg';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
@@ -82,10 +83,6 @@ export default function TrackScreen() {
   const [breathingCount, setBreathingCount] = useState(4);
   const [currentMantra, setCurrentMantra] = useState(0);
   const [selectedGroundingTechnique, setSelectedGroundingTechnique] = useState<string | null>(null);
-  const [waveAnimation] = useState(new Animated.Value(0));
-  const [waveOffset1] = useState(new Animated.Value(0));
-  const [waveOffset2] = useState(new Animated.Value(0));
-  const [waveOffset3] = useState(new Animated.Value(0));
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [tipOpacity] = useState(new Animated.Value(1));
 
@@ -126,49 +123,6 @@ export default function TrackScreen() {
     registerOpenCallback(openUrgeSurfFromIndicator);
   }, [registerOpenCallback]);
 
-  // Wave animation effect
-  useEffect(() => {
-    if (session.active) {
-      const startWaveAnimation = () => {
-        // Create multiple wave layers with different speeds for realistic ocean effect
-        Animated.loop(
-          Animated.timing(waveOffset1, {
-            toValue: 1,
-            duration: 4000, // Slow base wave
-            useNativeDriver: true,
-          })
-        ).start();
-        
-        Animated.loop(
-          Animated.timing(waveOffset2, {
-            toValue: 1,
-            duration: 3000, // Medium wave
-            useNativeDriver: true,
-          })
-        ).start();
-        
-        Animated.loop(
-          Animated.timing(waveOffset3, {
-            toValue: 1,
-            duration: 2500, // Fast foam layer
-            useNativeDriver: true,
-          })
-        ).start();
-      };
-      
-      // Use a small timeout to avoid scheduling updates during render
-      const timeout = setTimeout(startWaveAnimation, 0);
-      return () => clearTimeout(timeout);
-    } else {
-      // Use timeout to avoid setValue during render
-      const timeout = setTimeout(() => {
-        waveOffset1.setValue(0);
-        waveOffset2.setValue(0);
-        waveOffset3.setValue(0);
-      }, 0);
-      return () => clearTimeout(timeout);
-    }
-  }, [session.active, waveOffset1, waveOffset2, waveOffset3]);
 
   // Tip rotation effect
   useEffect(() => {
@@ -830,51 +784,14 @@ export default function TrackScreen() {
                     </Text>
                     
                     <View style={styles.toolCard}>
-                      {/* Multi-layer wave animation */}
+                      {/* Koala waves GIF animation */}
                       {session.active && (
-                        <View style={styles.waveContainer}>
-                          {/* Base wave layer */}
-                          <Animated.View style={[
-                            styles.waveLayer,
-                            styles.baseWave,
-                            {
-                              transform: [{
-                                translateX: waveOffset1.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [-400, 400],
-                                })
-                              }]
-                            }
-                          ]} />
-                          
-                          {/* Medium wave layer */}
-                          <Animated.View style={[
-                            styles.waveLayer,
-                            styles.mediumWave,
-                            {
-                              transform: [{
-                                translateX: waveOffset2.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [-350, 350],
-                                })
-                              }]
-                            }
-                          ]} />
-                          
-                          {/* Foam/whitecap layer */}
-                          <Animated.View style={[
-                            styles.waveLayer,
-                            styles.foamWave,
-                            {
-                              transform: [{
-                                translateX: waveOffset3.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: [-300, 300],
-                                })
-                              }]
-                            }
-                          ]} />
-                        </View>
+                        <Image
+                          source={require('@/assets/images/gifs/koala waves gif.gif')}
+                          style={styles.waveGif}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                        />
                       )}
                       
                       <WaveIcon size={32} color="#4F46E5" />
@@ -1690,34 +1607,14 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  waveContainer: {
+  waveGif: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     borderRadius: 16,
-  },
-  waveLayer: {
-    position: 'absolute',
-    height: '100%',
-    width: 800, // Wide enough for smooth animation
-    borderRadius: 16,
-  },
-  baseWave: {
-    backgroundColor: 'rgba(56, 189, 248, 0.08)',
-    bottom: 0,
-    height: '60%',
-  },
-  mediumWave: {
-    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-    bottom: 10,
-    height: '40%',
-  },
-  foamWave: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    bottom: 20,
-    height: '20%',
+    opacity: 0.6,
   },
   toolCardTitle: {
     fontSize: 22,

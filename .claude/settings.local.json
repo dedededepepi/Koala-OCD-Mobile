@@ -17,7 +17,9 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(npm start)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
