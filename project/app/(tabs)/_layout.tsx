@@ -104,9 +104,9 @@ export default function TabLayout() {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
           borderTopColor: '#f1f5f9',
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 64,
+          paddingTop: 12,
+          paddingBottom: 12,
+          height: 72,
         },
         tabBarActiveTintColor: '#14B8A6',
         tabBarInactiveTintColor: '#64748b',
@@ -120,7 +120,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <HomeIcon size={size} color={color} />
+            <HomeIcon size={28} color={color} />
           ),
         }}
       />
@@ -129,7 +129,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <JournalIcon size={size} color={color} />
+            <JournalIcon size={28} color={color} />
           ),
         }}
       />
@@ -138,7 +138,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <TimelineIcon size={size} color={color} />
+            <TimelineIcon size={28} color={color} />
           ),
         }}
       />
@@ -147,7 +147,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <StatsIcon size={size} color={color} />
+            <StatsIcon size={28} color={color} />
           ),
         }}
       />
@@ -156,7 +156,7 @@ export default function TabLayout() {
         options={{
           title: '',
           tabBarIcon: ({ size, color }) => (
-            <SettingsIcon size={size} color={color} />
+            <SettingsIcon size={28} color={color} />
           ),
         }}
       />

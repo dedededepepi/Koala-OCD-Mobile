@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { TrendingUp, ChartBar as BarChart3, Calendar } from 'lucide-react-native';
+import { TimelineIcon } from '@/components/TimelineIcon';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { storageService, Trigger } from '@/services/storage';
 
@@ -109,7 +110,7 @@ export default function TimelineScreen() {
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <TrendingUp size={28} color="#4F46E5" />
+          <TimelineIcon size={28} color="#4F46E5" />
           <Text style={styles.title}>Timeline</Text>
         </View>
         <Text style={styles.subtitle}>

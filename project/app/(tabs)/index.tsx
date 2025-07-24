@@ -647,6 +647,7 @@ export default function TrackScreen() {
         visible={showCopingToolbox}
         animationType="fade"
         transparent={true}
+        presentationStyle="overFullScreen"
       >
         <View style={styles.toolboxOverlay}>
           <PanGestureHandler onHandlerStateChange={handleSwipeGesture}>

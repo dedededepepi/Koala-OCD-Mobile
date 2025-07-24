@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ChartBar as BarChart3, Calendar, Target, Trophy, TrendingUp, Zap, RefreshCw } from 'lucide-react-native';
+import { StatsIcon } from '@/components/StatsIcon';
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { storageService, Trigger, Achievement } from '@/services/storage';
 
@@ -162,7 +163,7 @@ export default function StatsScreen() {
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <BarChart3 size={28} color="#4F46E5" />
+          <StatsIcon size={28} color="#4F46E5" />
           <Text style={styles.title}>Stats</Text>
           <TouchableOpacity 
             style={styles.refreshButton}

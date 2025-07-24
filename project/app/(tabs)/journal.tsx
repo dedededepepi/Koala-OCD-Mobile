@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { BookOpen, Plus, Clock, CreditCard as Edit3, Trash2, CircleCheck as CheckCircle, Circle as XCircle, X, Calendar } from 'lucide-react-native';
+import { JournalIcon } from '@/components/JournalIcon';
 import * as Haptics from 'expo-haptics';
 import { format } from 'date-fns';
 import { storageService, Trigger } from '@/services/storage';
@@ -283,7 +284,7 @@ export default function JournalScreen() {
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <BookOpen size={28} color="#4F46E5" />
+          <JournalIcon size={28} color="#4F46E5" />
           <Text style={styles.title}>Journal</Text>
         </View>
         <Text style={styles.subtitle}>
