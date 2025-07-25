@@ -272,15 +272,36 @@ class StorageService {
   async importData(jsonData: string): Promise<void> {
     try {
       const data = JSON.parse(jsonData);
-      
-      if (data.triggers) {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.triggers));
+      // Validate triggers
+      if (data.triggers && Array.isArray(data.triggers)) {
+        const validTriggers = data.triggers.filter((t: any) =>
+          typeof t.id === 'string' &&
+          typeof t.timestamp === 'string' &&
+          typeof t.isResisted === 'boolean'
+        );
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(validTriggers));
       }
-      if (data.settings) {
-        await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+      // Validate settings
+      if (data.settings && typeof data.settings === 'object') {
+        const s = data.settings;
+        const validSettings = {
+          darkMode: typeof s.darkMode === 'boolean' ? s.darkMode : false,
+          notifications: typeof s.notifications === 'boolean' ? s.notifications : true,
+          dailyTarget: typeof s.dailyTarget === 'number' ? s.dailyTarget : 15,
+          reminderTime: typeof s.reminderTime === 'string' ? s.reminderTime : undefined,
+        };
+        await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(validSettings));
       }
-      if (data.achievements) {
-        await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(data.achievements));
+      // Validate achievements
+      if (data.achievements && Array.isArray(data.achievements)) {
+        const validAchievements = data.achievements.filter((a: any) =>
+          typeof a.id === 'string' &&
+          typeof a.title === 'string' &&
+          typeof a.description === 'string' &&
+          typeof a.icon === 'string' &&
+          typeof a.earned === 'boolean'
+        );
+        await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(validAchievements));
       }
     } catch (error) {
       console.error('Error importing data:', error);
