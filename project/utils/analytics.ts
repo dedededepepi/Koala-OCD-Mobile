@@ -31,12 +31,15 @@ export class AnalyticsService {
       };
     }
 
+    // Ensure triggers are sorted by timestamp ascending
+    triggers.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
     const totalTriggers = triggers.length;
     const totalResisted = triggers.filter(t => t.isResisted).length;
     const resistanceRate = Math.round((totalResisted / totalTriggers) * 100);
 
-    // Calculate streak
-    const streakDays = await this.calculateStreak();
+    // Calculate streak (optimized)
+    const streakDays = await this.calculateStreakOptimized(triggers);
 
     // Calculate average triggers per day
     const firstTrigger = new Date(triggers[0].timestamp);
@@ -77,11 +80,19 @@ export class AnalyticsService {
     };
   }
 
-  private static async calculateStreak(): Promise<number> {
+  // Optimized streak calculation using all triggers
+  private static async calculateStreakOptimized(triggers: any[]): Promise<number> {
+    // Group triggers by date string
+    const dateMap: Record<string, any[]> = {};
+    triggers.forEach(t => {
+      const dateStr = t.timestamp.split('T')[0];
+      if (!dateMap[dateStr]) dateMap[dateStr] = [];
+      dateMap[dateStr].push(t);
+    });
     let streak = 0;
     for (let i = 0; i < 30; i++) {
       const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
-      const dayTriggers = await storageService.getTriggersByDate(date);
+      const dayTriggers = dateMap[date] || [];
       if (dayTriggers.length > 0) {
         const dayRate = (dayTriggers.filter(t => t.isResisted).length / dayTriggers.length) * 100;
         if (dayRate >= 50) {

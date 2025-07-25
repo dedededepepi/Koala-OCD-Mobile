@@ -102,9 +102,16 @@ export default function StatsScreen() {
 
     // Calculate streak (days with 50%+ resistance)
     let streak = 0;
+    // Group allTriggers by date
+    const dateMap: Record<string, typeof allTriggers> = {};
+    allTriggers.forEach(t => {
+      const dateStr = t.timestamp.split('T')[0];
+      if (!dateMap[dateStr]) dateMap[dateStr] = [];
+      dateMap[dateStr].push(t);
+    });
     for (let i = 0; i < 30; i++) {
       const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
-      const dayTriggers = await storageService.getTriggersByDate(date);
+      const dayTriggers = dateMap[date] || [];
       if (dayTriggers.length > 0) {
         const dayRate = (dayTriggers.filter(t => t.isResisted).length / dayTriggers.length) * 100;
         if (dayRate >= 50) {
