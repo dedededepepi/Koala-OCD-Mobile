@@ -13,20 +13,12 @@ import { ChartBar as BarChart3, Calendar, Target, Trophy, TrendingUp, Zap, Refre
 import { StatsIcon } from '@/components/StatsIcon';
 import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { storageService, Trigger, Achievement } from '@/services/storage';
+import { useTheme } from '@/hooks/useTheme';
 
 interface PeriodStats {
   total: number;
   resisted: number;
   rate: number;
-}
-
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  earned: boolean;
-  earnedDate?: string;
 }
 
 interface TriggerType {
@@ -35,6 +27,7 @@ interface TriggerType {
 }
 
 export default function StatsScreen() {
+  const { colors } = useTheme();
   const [weekStats, setWeekStats] = useState<PeriodStats>({ total: 0, resisted: 0, rate: 0 });
   const [monthStats, setMonthStats] = useState<PeriodStats>({ total: 0, resisted: 0, rate: 0 });
   const [allTimeStats, setAllTimeStats] = useState<PeriodStats>({ total: 0, resisted: 0, rate: 0 });
@@ -102,9 +95,16 @@ export default function StatsScreen() {
 
     // Calculate streak (days with 50%+ resistance)
     let streak = 0;
+    // Group allTriggers by date
+    const dateMap: Record<string, typeof allTriggers> = {};
+    allTriggers.forEach(t => {
+      const dateStr = t.timestamp.split('T')[0];
+      if (!dateMap[dateStr]) dateMap[dateStr] = [];
+      dateMap[dateStr].push(t);
+    });
     for (let i = 0; i < 30; i++) {
       const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
-      const dayTriggers = await storageService.getTriggersByDate(date);
+      const dayTriggers = dateMap[date] || [];
       if (dayTriggers.length > 0) {
         const dayRate = (dayTriggers.filter(t => t.isResisted).length / dayTriggers.length) * 100;
         if (dayRate >= 50) {
@@ -158,68 +158,56 @@ export default function StatsScreen() {
   const predictedRate = Math.min(Math.max(allTimeStats.rate + Math.floor(Math.random() * 10 - 5), 0), 100);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }] }>
+      <StatusBar style={colors.background === '#0F172A' ? 'light' : 'dark'} />
       
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background }] }>
         <View style={styles.titleContainer}>
-          <StatsIcon size={28} color="#4F46E5" />
-          <Text style={styles.title}>Stats</Text>
-          <TouchableOpacity 
-            style={styles.refreshButton}
-            onPress={handleRefresh}
-            disabled={refreshing}
-          >
-            <RefreshCw 
-              size={20} 
-              color="#4F46E5" 
-              style={refreshing && styles.spinning}
-            />
+          <StatsIcon size={28} color={colors.primary} />
+          <Text style={[styles.title, { color: colors.text }]}>Stats</Text>
+          <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh} disabled={refreshing}>
+            <RefreshCw size={20} color={colors.primary} style={refreshing && styles.spinning} />
           </TouchableOpacity>
         </View>
-        <Text style={styles.subtitle}>
-          Your progress and achievements
-        </Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Your progress and achievements</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Hero Card */}
-        <View style={styles.heroCard}>
-          <Text style={styles.heroNumber}>{streakDays}</Text>
-          <Text style={styles.heroTitle}>Day with 50%+ resistance</Text>
-          <Text style={styles.heroSubtitle}>Keep the momentum going! 🔥</Text>
+        <View style={[styles.heroCard, { backgroundColor: colors.purple, shadowColor: colors.shadow }] }>
+          <Text style={[styles.heroNumber, { color: colors.buttonPrimaryText }]}>{streakDays}</Text>
+          <Text style={[styles.heroTitle, { color: colors.buttonPrimaryText }]}>Day with 50%+ resistance</Text>
+          <Text style={[styles.heroSubtitle, { color: colors.purpleMuted }]}>Keep the momentum going! 🔥</Text>
         </View>
 
         {/* This Week */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <Calendar size={20} color="#4F46E5" />
+            <Calendar size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>This Week</Text>
-              <Text style={styles.cardDate}>
-                {format(startOfWeek(new Date()), 'MMM d')} - {format(endOfWeek(new Date()), 'MMM d')}
-              </Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>This Week</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>{format(startOfWeek(new Date()), 'MMM d')} - {format(endOfWeek(new Date()), 'MMM d')}</Text>
             </View>
           </View>
           
           <View style={styles.statsSection}>
-            <Text style={styles.statsLabel}>Resistance Rate</Text>
-            <Text style={styles.statsPercentage}>{weekStats.rate}%</Text>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${weekStats.rate}%` }]} />
+            <Text style={[styles.statsLabel, { color: colors.text }]}>Resistance Rate</Text>
+            <Text style={[styles.statsPercentage, { color: colors.text }]}>{weekStats.rate}%</Text>
+            <View style={[styles.progressBar, { backgroundColor: colors.surfaceSecondary }] }>
+              <View style={[styles.progressFill, { width: `${weekStats.rate}%`, backgroundColor: colors.primary }]} />
             </View>
             
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#10B981' }]}>{weekStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Resisted</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.success }]}>{weekStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Resisted</Text>
                 </View>
               </View>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#F97316' }]}>{weekStats.total - weekStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Gave In</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.warning }]}>{weekStats.total - weekStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Gave In</Text>
                 </View>
               </View>
             </View>
@@ -227,35 +215,33 @@ export default function StatsScreen() {
         </View>
 
         {/* This Month */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <Target size={20} color="#4F46E5" />
+            <Target size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>This Month</Text>
-              <Text style={styles.cardDate}>
-                {format(new Date(), 'MMMM yyyy')}
-              </Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>This Month</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>{format(new Date(), 'MMMM yyyy')}</Text>
             </View>
           </View>
           
           <View style={styles.statsSection}>
-            <Text style={styles.statsLabel}>Resistance Rate</Text>
-            <Text style={styles.statsPercentage}>{monthStats.rate}%</Text>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${monthStats.rate}%` }]} />
+            <Text style={[styles.statsLabel, { color: colors.text }]}>Resistance Rate</Text>
+            <Text style={[styles.statsPercentage, { color: colors.text }]}>{monthStats.rate}%</Text>
+            <View style={[styles.progressBar, { backgroundColor: colors.surfaceSecondary }] }>
+              <View style={[styles.progressFill, { width: `${monthStats.rate}%`, backgroundColor: colors.primary }]} />
             </View>
             
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#10B981' }]}>{monthStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Resisted</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.success }]}>{monthStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Resisted</Text>
                 </View>
               </View>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#F97316' }]}>{monthStats.total - monthStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Gave In</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.warning }]}>{monthStats.total - monthStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Gave In</Text>
                 </View>
               </View>
             </View>
@@ -263,33 +249,33 @@ export default function StatsScreen() {
         </View>
 
         {/* All Time */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <TrendingUp size={20} color="#4F46E5" />
+            <TrendingUp size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>All Time</Text>
-              <Text style={styles.cardDate}>Since you started tracking</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>All Time</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>Since you started tracking</Text>
             </View>
           </View>
           
           <View style={styles.statsSection}>
-            <Text style={styles.statsLabel}>Resistance Rate</Text>
-            <Text style={styles.statsPercentage}>{allTimeStats.rate}%</Text>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${allTimeStats.rate}%` }]} />
+            <Text style={[styles.statsLabel, { color: colors.text }]}>Resistance Rate</Text>
+            <Text style={[styles.statsPercentage, { color: colors.text }]}>{allTimeStats.rate}%</Text>
+            <View style={[styles.progressBar, { backgroundColor: colors.surfaceSecondary }] }>
+              <View style={[styles.progressFill, { width: `${allTimeStats.rate}%`, backgroundColor: colors.primary }]} />
             </View>
             
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#10B981' }]}>{allTimeStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Resisted</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.success }]}>{allTimeStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Resisted</Text>
                 </View>
               </View>
               <View style={styles.statItem}>
-                <View style={styles.statBox}>
-                  <Text style={[styles.statNumber, { color: '#F97316' }]}>{allTimeStats.total - allTimeStats.resisted}</Text>
-                  <Text style={styles.statLabel}>Gave In</Text>
+                <View style={[styles.statBox, { backgroundColor: colors.surfaceSecondary }] }>
+                  <Text style={[styles.statNumber, { color: colors.warning }]}>{allTimeStats.total - allTimeStats.resisted}</Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Gave In</Text>
                 </View>
               </View>
             </View>
@@ -297,39 +283,39 @@ export default function StatsScreen() {
         </View>
 
         {/* Tomorrow's Forecast */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <Zap size={20} color="#4F46E5" />
+            <Zap size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Tomorrow's Forecast</Text>
-              <Text style={styles.cardDate}>AI prediction based on your recent patterns</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Tomorrow's Forecast</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>AI prediction based on your recent patterns</Text>
             </View>
           </View>
           
           <View style={styles.forecastSection}>
             <View style={styles.forecastHeader}>
-              <Text style={styles.forecastPercentage}>{predictedRate}%</Text>
-              <View style={styles.forecastBadge}>
+              <Text style={[styles.forecastPercentage, { color: colors.primary }]}>{predictedRate}%</Text>
+              <View style={[styles.forecastBadge, { backgroundColor: colors.warningMuted }] }>
                 <Text style={styles.forecastBadgeText}>💪</Text>
-                <Text style={styles.forecastConfidence}>low</Text>
+                <Text style={[styles.forecastConfidence, { color: colors.warning }]}>low</Text>
               </View>
             </View>
-            <Text style={styles.forecastLabel}>Predicted resistance rate</Text>
-            <Text style={styles.forecastSubtext}>low confidence</Text>
+            <Text style={[styles.forecastLabel, { color: colors.primary }]}>Predicted resistance rate</Text>
+            <Text style={[styles.forecastSubtext, { color: colors.textSecondary }]}>low confidence</Text>
             
-            <Text style={styles.forecastMessage}>
+            <Text style={[styles.forecastMessage, { color: colors.primary }]}>
               Tomorrow presents a balanced opportunity. Your patterns show steady progress - trust in your growing strength and use your coping tools. 💪
             </Text>
           </View>
         </View>
 
         {/* Achievements */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <Trophy size={20} color="#4F46E5" />
+            <Trophy size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Achievements</Text>
-              <Text style={styles.cardDate}>Celebrate your progress milestones</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Achievements</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>Celebrate your progress milestones</Text>
             </View>
           </View>
           
@@ -339,7 +325,7 @@ export default function StatsScreen() {
                 key={achievement.id} 
                 style={[
                   styles.achievementItem,
-                  achievement.earned && styles.achievementEarned
+                  achievement.earned && { backgroundColor: colors.warningMuted, borderColor: colors.warning }
                 ]}
                 onPress={() => handleAchievementPress(achievement)}
               >
@@ -347,35 +333,24 @@ export default function StatsScreen() {
                 <View style={styles.achievementContent}>
                   <Text style={[
                     styles.achievementTitle,
-                    !achievement.earned && styles.achievementTitleDisabled
-                  ]}>
-                    {achievement.title}
-                  </Text>
+                    !achievement.earned && { color: colors.textTertiary }
+                  ]}>{achievement.title}</Text>
                   <Text style={[
                     styles.achievementDescription,
-                    !achievement.earned && styles.achievementDescriptionDisabled
-                  ]}>
-                    {achievement.description}
-                  </Text>
+                    !achievement.earned && { color: colors.errorMuted }
+                  ]}>{achievement.description}</Text>
                   {achievement.target && (
                     <View style={styles.progressContainer}>
-                      <View style={styles.progressBar}>
-                        <View 
-                          style={[
-                            styles.progressFill,
-                            { width: `${(achievement.progress || 0) / achievement.target * 100}%` }
-                          ]} 
-                        />
+                      <View style={[styles.progressBar, { backgroundColor: colors.surfaceSecondary }] }>
+                        <View style={[styles.progressFill, { width: `${(achievement.progress || 0) / achievement.target * 100}%`, backgroundColor: colors.primary }]} />
                       </View>
-                      <Text style={styles.progressText}>
-                        {achievement.progress || 0}/{achievement.target}
-                      </Text>
+                      <Text style={[styles.progressText, { color: colors.textSecondary }]}>{achievement.progress || 0}/{achievement.target}</Text>
                     </View>
                   )}
                 </View>
                 {achievement.earned && (
-                  <View style={styles.earnedBadge}>
-                    <Text style={styles.earnedBadgeText}>Earned!</Text>
+                  <View style={[styles.earnedBadge, { backgroundColor: colors.warning }] }>
+                    <Text style={[styles.earnedBadgeText, { color: colors.buttonPrimaryText }]}>Earned!</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -384,32 +359,29 @@ export default function StatsScreen() {
         </View>
 
         {/* Top Triggers */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <Zap size={20} color="#4F46E5" />
+            <Zap size={20} color={colors.primary} />
             <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Top Triggers</Text>
-              <Text style={styles.cardDate}>Your most common trigger types</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Top Triggers</Text>
+              <Text style={[styles.cardDate, { color: colors.textSecondary }]}>Your most common trigger types</Text>
             </View>
           </View>
           
           <View style={styles.triggersList}>
             {topTriggers.map((trigger, index) => (
               <View key={trigger.type} style={styles.triggerItem}>
-                <Text style={styles.triggerRank}>{index + 1}</Text>
-                <Text style={styles.triggerType}>{trigger.type}</Text>
-                <View style={styles.triggerBar}>
-                  <View style={[
-                    styles.triggerBarFill,
-                    { width: `${(trigger.count / (topTriggers[0]?.count || 1)) * 100}%` }
-                  ]} />
+                <Text style={[styles.triggerRank, { color: colors.primary }]}>{index + 1}</Text>
+                <Text style={[styles.triggerType, { color: colors.text }]}>{trigger.type}</Text>
+                <View style={[styles.triggerBar, { backgroundColor: colors.surfaceSecondary }] }>
+                  <View style={[styles.triggerBarFill, { width: `${(trigger.count / (topTriggers[0]?.count || 1)) * 100}%`, backgroundColor: colors.primary }]} />
                 </View>
-                <Text style={styles.triggerCount}>{trigger.count}</Text>
+                <Text style={[styles.triggerCount, { color: colors.text }]}>{trigger.count}</Text>
               </View>
             ))}
             
             {topTriggers.length === 0 && (
-              <Text style={styles.emptyText}>No triggers recorded yet</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No triggers recorded yet</Text>
             )}
           </View>
         </View>
@@ -679,12 +651,10 @@ const styles = StyleSheet.create({
   progressBar: {
     flex: 1,
     height: 4,
-    backgroundColor: '#E5E7EB',
     borderRadius: 2,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4F46E5',
     borderRadius: 2,
   },
   progressText: {
@@ -714,12 +684,10 @@ const styles = StyleSheet.create({
   triggerBar: {
     flex: 2,
     height: 8,
-    backgroundColor: '#F3F4F6',
     borderRadius: 4,
   },
   triggerBarFill: {
     height: '100%',
-    backgroundColor: '#4F46E5',
     borderRadius: 4,
   },
   triggerCount: {

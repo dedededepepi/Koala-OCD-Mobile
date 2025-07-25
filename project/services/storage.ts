@@ -11,12 +11,11 @@ export interface Trigger {
 }
 
 export interface UserSettings {
-  darkMode: boolean; // Keep for backward compatibility
-  themeMode: 'light' | 'dark' | 'system';
+  darkMode: boolean;
   notifications: boolean;
-  haptics: boolean;
   dailyTarget: number;
   reminderTime?: string;
+  themeMode?: 'light' | 'dark' | 'system';
 }
 
 export interface Achievement {
@@ -102,28 +101,21 @@ class StorageService {
   async getSettings(): Promise<UserSettings> {
     try {
       const data = await AsyncStorage.getItem(SETTINGS_KEY);
-      const settings = data ? JSON.parse(data) : {
+      const parsed = data ? JSON.parse(data) : {
         darkMode: false,
-        themeMode: 'system' as const,
         notifications: true,
-        haptics: true,
         dailyTarget: 15,
+        themeMode: 'system',
       };
-      
-      // Migration: if themeMode doesn't exist, use darkMode value
-      if (!settings.themeMode) {
-        settings.themeMode = settings.darkMode ? 'dark' : 'light';
-      }
-      
-      return settings;
+      if (!parsed.themeMode) parsed.themeMode = 'system';
+      return parsed;
     } catch (error) {
       console.error('Error loading settings:', error);
       return {
         darkMode: false,
-        themeMode: 'system' as const,
         notifications: true,
-        haptics: true,
         dailyTarget: 15,
+        themeMode: 'system',
       };
     }
   }
@@ -285,15 +277,37 @@ class StorageService {
   async importData(jsonData: string): Promise<void> {
     try {
       const data = JSON.parse(jsonData);
-      
-      if (data.triggers) {
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data.triggers));
+      // Validate triggers
+      if (data.triggers && Array.isArray(data.triggers)) {
+        const validTriggers = data.triggers.filter((t: any) =>
+          typeof t.id === 'string' &&
+          typeof t.timestamp === 'string' &&
+          typeof t.isResisted === 'boolean'
+        );
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(validTriggers));
       }
-      if (data.settings) {
-        await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+      // Validate settings
+      if (data.settings && typeof data.settings === 'object') {
+        const s = data.settings;
+        const validSettings = {
+          darkMode: typeof s.darkMode === 'boolean' ? s.darkMode : false,
+          notifications: typeof s.notifications === 'boolean' ? s.notifications : true,
+          dailyTarget: typeof s.dailyTarget === 'number' ? s.dailyTarget : 15,
+          reminderTime: typeof s.reminderTime === 'string' ? s.reminderTime : undefined,
+          themeMode: s.themeMode === 'dark' || s.themeMode === 'light' || s.themeMode === 'system' ? s.themeMode : 'system',
+        };
+        await AsyncStorage.setItem(SETTINGS_KEY, JSON.stringify(validSettings));
       }
-      if (data.achievements) {
-        await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(data.achievements));
+      // Validate achievements
+      if (data.achievements && Array.isArray(data.achievements)) {
+        const validAchievements = data.achievements.filter((a: any) =>
+          typeof a.id === 'string' &&
+          typeof a.title === 'string' &&
+          typeof a.description === 'string' &&
+          typeof a.icon === 'string' &&
+          typeof a.earned === 'boolean'
+        );
+        await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(validAchievements));
       }
     } catch (error) {
       console.error('Error importing data:', error);

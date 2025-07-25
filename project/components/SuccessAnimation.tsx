@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Animated } from 'react-native';
 import { CircleCheck as CheckCircle } from 'lucide-react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SuccessAnimationProps {
   visible: boolean;
@@ -8,6 +9,7 @@ interface SuccessAnimationProps {
 }
 
 export function SuccessAnimation({ visible, onComplete }: SuccessAnimationProps) {
+  const { colors } = useTheme();
   const scaleValue = React.useRef(new Animated.Value(0)).current;
   const opacityValue = React.useRef(new Animated.Value(0)).current;
 
@@ -58,12 +60,14 @@ export function SuccessAnimation({ visible, onComplete }: SuccessAnimationProps)
         style={[
           styles.animation,
           {
+            backgroundColor: colors.cardBackground,
+            shadowColor: colors.shadow,
             transform: [{ scale: scaleValue }],
             opacity: opacityValue,
           },
         ]}
       >
-        <CheckCircle size={60} color="#10B981" />
+        <CheckCircle size={60} color={colors.success} />
       </Animated.View>
     </View>
   );
@@ -78,14 +82,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 1000,
   },
   animation: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 50,
     padding: 20,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

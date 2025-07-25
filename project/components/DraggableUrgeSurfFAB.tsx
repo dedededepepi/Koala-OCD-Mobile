@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
+import { useTheme } from '@/hooks/useTheme';
 
 interface DraggableUrgeSurfFABProps {
   active: boolean;
@@ -11,6 +12,7 @@ interface DraggableUrgeSurfFABProps {
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export function DraggableUrgeSurfFAB({ active, timeLeft, onPress }: DraggableUrgeSurfFABProps) {
+  const { colors } = useTheme();
   if (!active) {
     return null;
   }
@@ -24,9 +26,9 @@ export function DraggableUrgeSurfFAB({ active, timeLeft, onPress }: DraggableUrg
   // Simplified version - just show a fixed FAB first to test
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.fab} onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity style={[styles.fab, { backgroundColor: colors.info, shadowColor: colors.shadow }]} onPress={onPress} activeOpacity={0.8}>
         <Text style={styles.emoji}>🏄‍♂️</Text>
-        <Text style={styles.time}>{formatTime(timeLeft)}</Text>
+        <Text style={[styles.time, { color: colors.buttonPrimaryText }]}>{formatTime(timeLeft)}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -40,13 +42,11 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   fab: {
-    backgroundColor: '#38BDF8',
     borderRadius: 30,
     width: 100,
     height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   time: {
-    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '600',
     fontFamily: 'NotoSansJP-SemiBold',

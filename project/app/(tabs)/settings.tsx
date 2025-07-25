@@ -49,7 +49,6 @@ export default function SettingsScreen() {
     const userSettings = await storageService.getSettings();
     setSettings(userSettings);
     setNotifications(userSettings.notifications);
-    setHaptics(userSettings.haptics);
   };
 
   const triggerHapticForToggle = () => {
@@ -331,7 +330,7 @@ export default function SettingsScreen() {
         {/* Data Management */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Download size={20} color="#4F46E5" />
+            <Download size={20} color={colors.primary} />
             <Text style={styles.cardTitle}>Data Management</Text>
           </View>
           <Text style={styles.cardSubtitle}>
@@ -347,7 +346,7 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <TouchableOpacity 
-                style={[styles.actionButton, { backgroundColor: '#4F46E5' }]}
+                style={[styles.actionButton, { backgroundColor: colors.primary }]}
                 onPress={handleExportData}
                 disabled={loading}
               >
@@ -366,7 +365,7 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <TouchableOpacity 
-                style={[styles.actionButton, { backgroundColor: '#10B981' }]}
+                style={[styles.actionButton, { backgroundColor: colors.success }]}
                 onPress={handleImportData}
                 disabled={loading}
               >
@@ -383,7 +382,7 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <TouchableOpacity 
-                style={[styles.actionButton, { backgroundColor: '#EF4444' }]}
+                style={[styles.actionButton, { backgroundColor: colors.error }]}
                 onPress={handleClearData}
                 disabled={loading}
               >
@@ -399,7 +398,7 @@ export default function SettingsScreen() {
         {/* About OCD Tracker */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Info size={20} color="#4F46E5" />
+            <Info size={20} color={colors.primary} />
             <Text style={styles.cardTitle}>About OCD Tracker</Text>
           </View>
           
@@ -432,7 +431,7 @@ export default function SettingsScreen() {
 
         {/* You're Not Alone */}
         <View style={styles.supportCard}>
-          <Heart size={24} color="#EC4899" />
+          <Heart size={24} color={colors.pink} />
           <Text style={styles.supportTitle}>You're Not Alone</Text>
           <Text style={styles.supportText}>
             Recovery is a journey, not a destination. Every step you take, every trigger you resist, 
@@ -443,7 +442,7 @@ export default function SettingsScreen() {
         {/* Developer Tools */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Wrench size={20} color="#6B7280" />
+            <Wrench size={20} color={colors.textSecondary} />
             <Text style={styles.cardTitle}>Developer Tools</Text>
           </View>
           <Text style={styles.cardSubtitle}>
@@ -606,12 +605,12 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#1F2937',
+    color: colors.text,
   },
   cardSubtitle: {
     fontSize: 14,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     marginBottom: 20,
   },
   settingItem: {
@@ -632,13 +631,13 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'NotoSansJP-SemiBold',
-    color: '#1F2937',
+    color: colors.text,
     marginBottom: 2,
   },
   settingDescription: {
     fontSize: 14,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
   },
   targetButton: {
     backgroundColor: '#F3F4F6',

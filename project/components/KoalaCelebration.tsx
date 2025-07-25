@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
+import { useTheme } from '@/hooks/useTheme';
 
 interface KoalaCelebrationProps {
   visible: boolean;
@@ -7,6 +8,7 @@ interface KoalaCelebrationProps {
 }
 
 export function KoalaCelebration({ visible, onComplete }: KoalaCelebrationProps) {
+  const { colors } = useTheme();
   const scaleValue = React.useRef(new Animated.Value(0)).current;
   const opacityValue = React.useRef(new Animated.Value(0)).current;
   const bounceValue = React.useRef(new Animated.Value(0)).current;
@@ -74,11 +76,13 @@ export function KoalaCelebration({ visible, onComplete }: KoalaCelebrationProps)
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.overlay }] }>
       <Animated.View
         style={[
           styles.koalaContainer,
           {
+            backgroundColor: colors.cardBackground,
+            shadowColor: colors.shadow,
             transform: [
               { scale: scaleValue },
               { translateY: bounceTransform }
@@ -89,8 +93,8 @@ export function KoalaCelebration({ visible, onComplete }: KoalaCelebrationProps)
       >
         <Text style={styles.koala}>🐨</Text>
         <View style={styles.messageContainer}>
-          <Text style={styles.celebrationText}>Great job!</Text>
-          <Text style={styles.subText}>You resisted! 🎉</Text>
+          <Text style={[styles.celebrationText, { color: colors.success }]}>Great job!</Text>
+          <Text style={[styles.subText, { color: colors.textSecondary }]}>You resisted! 🎉</Text>
         </View>
       </Animated.View>
     </View>
@@ -106,15 +110,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
     zIndex: 1000,
   },
   koalaContainer: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -131,11 +132,9 @@ const styles = StyleSheet.create({
   celebrationText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#10B981',
     marginBottom: 4,
   },
   subText: {
     fontSize: 16,
-    color: '#6B7280',
   },
 });

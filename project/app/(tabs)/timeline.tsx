@@ -12,6 +12,7 @@ import { TrendingUp, ChartBar as BarChart3, Calendar } from 'lucide-react-native
 import { TimelineIcon } from '@/components/TimelineIcon';
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns';
 import { storageService, Trigger } from '@/services/storage';
+import { useTheme } from '@/hooks/useTheme';
 
 const { width } = Dimensions.get('window');
 
@@ -29,6 +30,7 @@ interface HourlyData {
 }
 
 export default function TimelineScreen() {
+  const { colors } = useTheme();
   const [weeklyStats, setWeeklyStats] = useState<DayStats[]>([]);
   const [todayHourly, setTodayHourly] = useState<HourlyData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,32 +107,27 @@ export default function TimelineScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }] }>
+      <StatusBar style={colors.background === '#0F172A' ? 'light' : 'dark'} />
       
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.background }] }>
         <View style={styles.titleContainer}>
-          <TimelineIcon size={28} color="#4F46E5" />
-          <Text style={styles.title}>Timeline</Text>
+          <TimelineIcon size={28} color={colors.primary} />
+          <Text style={[styles.title, { color: colors.text }]}>Timeline</Text>
         </View>
-        <Text style={styles.subtitle}>
-          Visualize your compulsion patterns over time
-        </Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Visualize your compulsion patterns over time</Text>
       </View>
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {/* Last 7 Days */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <BarChart3 size={20} color="#4F46E5" />
-            <Text style={styles.cardTitle}>Last 7 Days</Text>
+            <BarChart3 size={20} color={colors.primary} />
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Last 7 Days</Text>
           </View>
-          <Text style={styles.cardSubtitle}>
-            When compulsions occur most frequently throughout your day
-          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>When compulsions occur most frequently throughout your day</Text>
           
           <View style={styles.weeklyChart}>
-            <>
             <View style={styles.chartContainer}>
               {weeklyStats.map((day, index) => {
                 const maxHeight = 60;
@@ -141,32 +138,24 @@ export default function TimelineScreen() {
                 return (
                  <React.Fragment key={day.date}>
                   <View key={day.date} style={styles.dayColumn}>
-                    <View style={[styles.dayBar, { height: maxHeight }]}>
+                    <View style={[styles.dayBar, { height: maxHeight }] }>
                       {day.triggers > 0 && (
                         <>
                           <View style={[
                             styles.totalBar,
-                            { 
-                              height: totalHeight,
-                              backgroundColor: '#F97316'
-                            }
+                            { height: totalHeight, backgroundColor: colors.warning }
                           ]} />
                           <View style={[
                             styles.resistedBar,
-                            { 
-                              height: resistedHeight,
-                              backgroundColor: '#10B981'
-                            }
+                            { height: resistedHeight, backgroundColor: colors.success }
                           ]} />
                         </>
                       )}
                     </View>
-                    <Text style={styles.dayLabel}>
-                      {format(new Date(day.date), 'EEE')}
-                    </Text>
+                    <Text style={[styles.dayLabel, { color: colors.textSecondary }]}>{format(new Date(day.date), 'EEE')}</Text>
                   </View>
                   {index === 6 && day.triggers > 0 && (
-                    <Text style={styles.todayPercentageText}>{Math.round(day.rate)}%</Text>
+                    <Text style={[styles.todayPercentageText, { color: colors.primary }]}>{Math.round(day.rate)}%</Text>
                   )}
                  </React.Fragment>
                 );
@@ -175,89 +164,66 @@ export default function TimelineScreen() {
             
             <View style={styles.legend}>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
-                <Text style={styles.legendText}>Resisted</Text>
+                <View style={[styles.legendDot, { backgroundColor: colors.success }]} />
+                <Text style={[styles.legendText, { color: colors.textSecondary }]}>Resisted</Text>
               </View>
               <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#F97316' }]} />
-                <Text style={styles.legendText}>Gave In</Text>
+                <View style={[styles.legendDot, { backgroundColor: colors.warning }]} />
+                <Text style={[styles.legendText, { color: colors.textSecondary }]}>Gave In</Text>
               </View>
             </View>
-            </>
           </View>
         </View>
 
         {/* Today's Hourly Pattern */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <BarChart3 size={20} color="#4F46E5" />
-            <Text style={styles.cardTitle}>Today's Hourly Pattern</Text>
+            <BarChart3 size={20} color={colors.primary} />
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Today's Hourly Pattern</Text>
           </View>
-          <Text style={styles.cardSubtitle}>
-            When triggers occur most frequently throughout your day
-          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>When triggers occur most frequently throughout your day</Text>
           
           {todayHourly.length > 0 ? (
             <View style={styles.hourlyPattern}>
               {todayHourly.map((hour) => (
                 <View key={hour.hour} style={styles.hourlyItem}>
-                  <Text style={styles.hourLabel}>
-                    {hour.hour === 0 ? '12 AM' : hour.hour <= 12 ? `${hour.hour} AM` : `${hour.hour - 12} PM`}
-                  </Text>
-                  <View style={styles.hourlyBar}>
-                    <View style={[
-                      styles.hourlyResisted,
-                      { flex: hour.resisted }
-                    ]} />
-                    <View style={[
-                      styles.hourlyGaveIn,
-                      { flex: hour.triggers - hour.resisted }
-                    ]} />
+                  <Text style={[styles.hourLabel, { color: colors.text }]}>{hour.hour === 0 ? '12 AM' : hour.hour <= 12 ? `${hour.hour} AM` : `${hour.hour - 12} PM`}</Text>
+                  <View style={[styles.hourlyBar, { backgroundColor: colors.surfaceSecondary }] }>
+                    <View style={[styles.hourlyResisted, { backgroundColor: colors.success, flex: hour.resisted }]} />
+                    <View style={[styles.hourlyGaveIn, { backgroundColor: colors.warning, flex: hour.triggers - hour.resisted }]} />
                   </View>
-                  <Text style={styles.hourlyTotal}>{hour.triggers} total</Text>
+                  <Text style={[styles.hourlyTotal, { color: colors.textSecondary }]}>{hour.triggers} total</Text>
                 </View>
               ))}
             </View>
           ) : (
             <View style={styles.emptyHourly}>
-              <Text style={styles.emptyText}>No triggers recorded today</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No triggers recorded today</Text>
             </View>
           )}
         </View>
 
         {/* Weekly Insights */}
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: colors.cardBackground, shadowColor: colors.shadow }] }>
           <View style={styles.cardHeader}>
-            <TrendingUp size={20} color="#4F46E5" />
-            <Text style={styles.cardTitle}>Weekly Insights</Text>
+            <TrendingUp size={20} color={colors.primary} />
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Weekly Insights</Text>
           </View>
           
           <View style={styles.insights}>
             <View style={styles.insightItem}>
-              <Text style={styles.insightLabel}>Most challenging day:</Text>
-              <Text style={styles.insightValue}>
-                {mostChallengingDay.triggers > 0 
-                  ? `${format(new Date(mostChallengingDay.date), 'EEEE')} with ${mostChallengingDay.triggers} compulsions`
-                  : 'No challenging days this week'
-                }
-              </Text>
+              <Text style={[styles.insightLabel, { color: colors.primary }]}>Most challenging day:</Text>
+              <Text style={[styles.insightValue, { color: colors.text }]}>{mostChallengingDay.triggers > 0 ? `${format(new Date(mostChallengingDay.date), 'EEEE')} with ${mostChallengingDay.triggers} compulsions` : 'No challenging days this week'}</Text>
             </View>
             
             <View style={styles.insightItem}>
-              <Text style={styles.insightLabel}>Best resistance day:</Text>
-              <Text style={styles.insightValue}>
-                {bestResistanceDay.rate > 0
-                  ? `${format(new Date(bestResistanceDay.date), 'EEEE')} with ${Math.round(bestResistanceDay.rate)}% resistance`
-                  : 'Keep working on resistance'
-                }
-              </Text>
+              <Text style={[styles.insightLabel, { color: colors.primary }]}>Best resistance day:</Text>
+              <Text style={[styles.insightValue, { color: colors.text }]}>{bestResistanceDay.rate > 0 ? `${format(new Date(bestResistanceDay.date), 'EEEE')} with ${Math.round(bestResistanceDay.rate)}% resistance` : 'Keep working on resistance'}</Text>
             </View>
             
             <View style={styles.insightItem}>
-              <Text style={styles.insightLabel}>Total compulsions this week:</Text>
-              <Text style={styles.insightValue}>
-                {totalWeekTriggers} ({totalWeekResisted} resisted)
-              </Text>
+              <Text style={[styles.insightLabel, { color: colors.primary }]}>Total compulsions this week:</Text>
+              <Text style={[styles.insightValue, { color: colors.text }]}>{totalWeekTriggers} ({totalWeekResisted} resisted)</Text>
             </View>
           </View>
         </View>

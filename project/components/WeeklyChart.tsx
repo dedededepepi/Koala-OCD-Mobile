@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { format } from 'date-fns';
+import { useTheme } from '@/hooks/useTheme';
 
 const { width } = Dimensions.get('window');
 const chartWidth = width - 48; // Account for padding
@@ -18,6 +19,7 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ data }: WeeklyChartProps) {
+  const { colors } = useTheme();
   const maxTriggers = Math.max(...data.map(d => d.triggers), 1);
   const chartHeight = 120;
 
@@ -35,23 +37,23 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
                   styles.bar,
                   {
                     height: barHeight,
-                    backgroundColor: '#e2e8f0',
+                    backgroundColor: colors.infoMuted,
                   }
                 ]} />
                 <View style={[
                   styles.resistedBar,
                   {
                     height: resistedHeight,
-                    backgroundColor: '#10b981',
+                    backgroundColor: colors.success,
                   }
                 ]} />
               </View>
               
-              <Text style={styles.dayLabel}>
+              <Text style={[styles.dayLabel, { color: colors.textSecondary }]}>
                 {format(new Date(day.date), 'EEE')}
               </Text>
               
-              <Text style={styles.triggerCount}>
+              <Text style={[styles.triggerCount, { color: colors.textTertiary }]}>
                 {day.triggers}
               </Text>
             </View>
@@ -61,12 +63,12 @@ export function WeeklyChart({ data }: WeeklyChartProps) {
       
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#e2e8f0' }]} />
-          <Text style={styles.legendText}>Total Triggers</Text>
+          <View style={[styles.legendDot, { backgroundColor: colors.infoMuted }]} />
+          <Text style={[styles.legendText, { color: colors.textSecondary }]}>Total Triggers</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#10b981' }]} />
-          <Text style={styles.legendText}>Resisted</Text>
+          <View style={[styles.legendDot, { backgroundColor: colors.success }]} />
+          <Text style={[styles.legendText, { color: colors.textSecondary }]}>Resisted</Text>
         </View>
       </View>
     </View>
@@ -108,13 +110,11 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 12,
-    color: '#64748b',
     fontWeight: '500',
     marginBottom: 2,
   },
   triggerCount: {
     fontSize: 10,
-    color: '#94a3b8',
   },
   legend: {
     flexDirection: 'row',
@@ -134,6 +134,5 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: '#64748b',
   },
 });

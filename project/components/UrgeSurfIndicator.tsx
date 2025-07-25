@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
+import { useTheme } from '@/hooks/useTheme';
 
 interface UrgeSurfIndicatorProps {
   onPress: () => void;
@@ -8,6 +9,7 @@ interface UrgeSurfIndicatorProps {
 
 export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
   const { session } = useUrgeSurfSession();
+  const { colors } = useTheme();
   const [progressAnimation] = useState(new Animated.Value(0));
 
   // Update progress animation based on time remaining
@@ -36,23 +38,24 @@ export function UrgeSurfIndicator({ onPress }: UrgeSurfIndicatorProps) {
     <View style={styles.container}>
       {/* Main indicator content */}
       <TouchableOpacity 
-        style={styles.indicator} 
+        style={[styles.indicator, { backgroundColor: colors.info, shadowColor: colors.shadow }]} 
         onPress={onPress} 
         activeOpacity={0.8}
       >
         <Text style={styles.emoji}>🏄‍♂️</Text>
         <View style={styles.textContainer}>
-          <Text style={styles.title}>Urge Surf</Text>
-          <Text style={styles.time}>{formatTime(session.timeLeft)} remaining</Text>
+          <Text style={[styles.title, { color: colors.buttonPrimaryText }]}>Urge Surf</Text>
+          <Text style={[styles.time, { color: colors.buttonPrimaryText }]}>{formatTime(session.timeLeft)} remaining</Text>
         </View>
       </TouchableOpacity>
       
       {/* Progress bar at bottom */}
-      <View style={styles.progressBackground}>
+      <View style={[styles.progressBackground, { backgroundColor: colors.infoMuted }] }>
         <Animated.View 
           style={[
             styles.progressBar,
             {
+              backgroundColor: colors.primary,
               width: progressAnimation.interpolate({
                 inputRange: [0, 1],
                 outputRange: ['0%', '100%'],
@@ -74,7 +77,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   indicator: {
-    backgroundColor: '#38BDF8',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     borderBottomLeftRadius: 0,
@@ -83,7 +85,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6, // Much thinner - reduced from 12 to 6
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -97,13 +98,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: '#FFFFFF',
     fontSize: 12, // Smaller text
     fontWeight: '600',
     fontFamily: 'NotoSansJP-SemiBold',
   },
   time: {
-    color: '#FFFFFF',
     fontSize: 10, // Smaller text
     opacity: 0.9,
     fontFamily: 'NotoSansJP-Regular',
@@ -114,11 +113,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 3,
-    backgroundColor: 'rgba(56, 189, 248, 0.3)',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#1E40AF', // Darker blue
     borderRadius: 1.5,
   },
 });

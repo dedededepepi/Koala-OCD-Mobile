@@ -30,7 +30,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const loadThemePreference = async () => {
     const settings = await storageService.getSettings();
-    setThemeModeState(settings.themeMode);
+    setThemeModeState(settings.themeMode || 'system');
   };
 
   const setThemeMode = async (mode: ThemeMode) => {
