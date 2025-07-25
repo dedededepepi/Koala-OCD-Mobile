@@ -517,7 +517,7 @@ export default function TrackScreen() {
               <Text style={styles.statLabel}>Resisted</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: '#8B5CF6' }]}>{successRate}%</Text>
+              <Text style={[styles.statNumber, { color: colors.purple }]}>{successRate}%</Text>
               <Text style={styles.statLabel}>Success Rate</Text>
             </View>
           </View>
@@ -554,7 +554,7 @@ export default function TrackScreen() {
             {
               shadowColor: resistGlowAnimation.interpolate({
                 inputRange: [0, 1],
-                outputRange: ['transparent', '#10B981']
+                outputRange: ['transparent', colors.success]
               }),
               shadowOpacity: resistGlowAnimation.interpolate({
                 inputRange: [0, 1],
@@ -639,7 +639,7 @@ export default function TrackScreen() {
         style={styles.floatingButton}
         onPress={handleCopingToolboxPress}
       >
-        <CopingToolboxIcon size={24} color="#FFFFFF" />
+        <CopingToolboxIcon size={24} color={colors.textInverse} />
       </TouchableOpacity>
 
       {/* Draggable Urge Surf FAB - Disabled for now, using top indicator instead */}
@@ -664,7 +664,7 @@ export default function TrackScreen() {
               style={styles.closeButton}
               onPress={handleCancelGiveIn}
             >
-              <X size={24} color="#6B7280" />
+              <X size={24} color={colors.textSecondary} />
             </TouchableOpacity>
 
             <View style={styles.tipContainer}>
@@ -720,10 +720,10 @@ export default function TrackScreen() {
               <View style={styles.toolboxTitleContainer}>
                 {selectedTool ? (
                   <TouchableOpacity onPress={handleBackToTools}>
-                    <ArrowLeft size={20} color="#4F46E5" />
+                    <ArrowLeft size={20} color={colors.primary} />
                   </TouchableOpacity>
                 ) : (
-                  <Plus size={20} color="#4F46E5" />
+                  <Plus size={20} color={colors.primary} />
                 )}
                 <Text style={styles.toolboxTitle}>Coping Toolbox</Text>
               </View>
@@ -731,7 +731,7 @@ export default function TrackScreen() {
                 style={styles.toolboxCloseButton}
                 onPress={handleCloseCopingToolbox}
               >
-                <X size={24} color="#6B7280" />
+                <X size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
             
@@ -748,7 +748,7 @@ export default function TrackScreen() {
                       style={[styles.toolButton, styles.urgeSurfButton]}
                       onPress={() => handleToolSelect('urgeSurf')}
                     >
-                      <WaveIcon size={20} color="#FFFFFF" />
+                      <WaveIcon size={20} color={colors.textInverse} />
                       <Text style={styles.toolButtonText}>Urge Surf</Text>
                     </TouchableOpacity>
                     
@@ -756,7 +756,7 @@ export default function TrackScreen() {
                       style={[styles.toolButton, styles.breathingButton]}
                       onPress={() => handleToolSelect('breathing')}
                     >
-                      <Waves size={20} color="#FFFFFF" />
+                      <Waves size={20} color={colors.textInverse} />
                       <Text style={styles.toolButtonText}>Breathing</Text>
                     </TouchableOpacity>
                     
@@ -764,7 +764,7 @@ export default function TrackScreen() {
                       style={[styles.toolButton, styles.groundingButton]}
                       onPress={() => handleToolSelect('grounding')}
                     >
-                      <TreePine size={20} color="#FFFFFF" />
+                      <TreePine size={20} color={colors.textInverse} />
                       <Text style={styles.toolButtonText}>Grounding</Text>
                     </TouchableOpacity>
                     
@@ -772,7 +772,7 @@ export default function TrackScreen() {
                       style={[styles.toolButton, styles.mantrasButton]}
                       onPress={() => handleToolSelect('mantras')}
                     >
-                      <Quote size={20} color="#FFFFFF" />
+                      <Quote size={20} color={colors.textInverse} />
                       <Text style={styles.toolButtonText}>Mantras</Text>
                     </TouchableOpacity>
                   </View>
@@ -791,7 +791,7 @@ export default function TrackScreen() {
                   {selectedTool === 'urgeSurf' && (
                   <View style={styles.toolSection}>
                     <View style={styles.toolHeader}>
-                      <WaveIcon size={24} color="#4F46E5" />
+                      <WaveIcon size={24} color={colors.primary} />
                       <Text style={styles.toolTitle}>Urge Surf</Text>
                     </View>
                     <Text style={styles.toolDescription}>
@@ -809,7 +809,7 @@ export default function TrackScreen() {
                         />
                       )}
                       
-                      <WaveIcon size={32} color="#4F46E5" />
+                      <WaveIcon size={32} color={colors.primary} />
                       <Text style={styles.toolCardTitle}>
                         {session.active ? `${formatTime(session.timeLeft)}` : 'Ready to surf?'}
                       </Text>
@@ -855,7 +855,7 @@ export default function TrackScreen() {
                 {selectedTool === 'breathing' && (
                   <View style={styles.toolSection}>
                     <View style={styles.toolHeader}>
-                      <Waves size={24} color="#4F46E5" />
+                      <Waves size={24} color={colors.primary} />
                       <Text style={styles.toolTitle}>4-4-4 Breathing</Text>
                     </View>
                     <Text style={styles.toolDescription}>
@@ -863,7 +863,7 @@ export default function TrackScreen() {
                     </Text>
                     
                     <View style={styles.toolCard}>
-                      <Waves size={32} color="#4F46E5" />
+                      <Waves size={32} color={colors.primary} />
                       <Text style={styles.toolCardTitle}>
                         {breathingActive ? `${breathingPhase.charAt(0).toUpperCase() + breathingPhase.slice(1)}: ${breathingCount}` : 'Click Start to begin'}
                       </Text>
@@ -899,7 +899,7 @@ export default function TrackScreen() {
                     {!selectedGroundingTechnique ? (
                       <>
                         <View style={styles.toolHeader}>
-                          <TreePine size={24} color="#4F46E5" />
+                          <TreePine size={24} color={colors.primary} />
                           <Text style={styles.toolTitle}>Grounding Techniques</Text>
                         </View>
                         <Text style={styles.toolDescription}>
@@ -932,7 +932,7 @@ export default function TrackScreen() {
                     ) : selectedGroundingTechnique === '5-4-3-2-1' ? (
                       <>
                         <View style={styles.toolHeader}>
-                          <TreePine size={24} color="#4F46E5" />
+                          <TreePine size={24} color={colors.primary} />
                           <Text style={styles.toolTitle}>5-4-3-2-1 Technique</Text>
                         </View>
                         <Text style={styles.toolDescription}>
@@ -970,7 +970,7 @@ export default function TrackScreen() {
                     ) : selectedGroundingTechnique === 'bodyScan' ? (
                       <>
                         <View style={styles.toolHeader}>
-                          <TreePine size={24} color="#4F46E5" />
+                          <TreePine size={24} color={colors.primary} />
                           <Text style={styles.toolTitle}>Body Scan</Text>
                         </View>
                         <Text style={styles.toolDescription}>
@@ -1016,7 +1016,7 @@ export default function TrackScreen() {
                     ) : (
                       <>
                         <View style={styles.toolHeader}>
-                          <TreePine size={24} color="#4F46E5" />
+                          <TreePine size={24} color={colors.primary} />
                           <Text style={styles.toolTitle}>Mindful Observation</Text>
                         </View>
                         <Text style={styles.toolDescription}>
@@ -1100,7 +1100,7 @@ export default function TrackScreen() {
                 {selectedTool === 'mantras' && (
                   <View style={styles.toolSection}>
                     <View style={styles.toolHeader}>
-                      <Quote size={24} color="#4F46E5" />
+                      <Quote size={24} color={colors.primary} />
                       <Text style={styles.toolTitle}>Calming Mantras</Text>
                     </View>
                     <Text style={styles.toolDescription}>
@@ -1108,7 +1108,7 @@ export default function TrackScreen() {
                     </Text>
                     
                     <View style={styles.mantraCard}>
-                      <Quote size={24} color="#4F46E5" />
+                      <Quote size={24} color={colors.primary} />
                       <Text style={styles.mantraText}>
                         "{mantras[currentMantra]}"
                       </Text>
@@ -1195,10 +1195,10 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#1F2937',
+    color: colors.text,
   },
   fireBadge: {
-    backgroundColor: '#F97316',
+    backgroundColor: colors.warning,
     borderRadius: 20,
     width: 50,
     height: 40,
@@ -1213,7 +1213,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 16,
   },
   fireNumber: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 14,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
@@ -1221,16 +1221,16 @@ const createStyles = (colors: any) => StyleSheet.create({
   subtitle: {
     fontSize: 16,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   statsCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.cardBackground,
     marginHorizontal: 20,
     marginBottom: 20,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1239,7 +1239,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   dateText: {
     fontSize: 14,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 12,
   },
@@ -1255,20 +1255,20 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#4F46E5',
+    color: colors.primary,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 11,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   question: {
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#1F2937',
+    color: colors.text,
     textAlign: 'center',
     marginHorizontal: 20,
     marginBottom: 20,
@@ -1281,28 +1281,28 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: 24,
   },
   compulsionButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 6,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
     width: buttonWidth,
     alignItems: 'center',
     justifyContent: 'center',
   },
   compulsionButtonSelected: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#4F46E5',
+    backgroundColor: colors.primaryMuted,
+    borderColor: colors.primary,
   },
   compulsionText: {
     fontSize: 12,
     fontFamily: 'NotoSansJP-Medium',
-    color: '#374151',
+    color: colors.text,
     fontWeight: '500',
   },
   compulsionTextSelected: {
-    color: '#4F46E5',
+    color: colors.primary,
     fontWeight: '600',
     fontFamily: 'NotoSansJP-SemiBold',
   },
@@ -1318,7 +1318,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   resistButton: {
     width: '100%',
-    backgroundColor: '#10B981',
+    backgroundColor: colors.success,
     borderRadius: 16,
     paddingVertical: 24,
     alignItems: 'center',
@@ -1330,7 +1330,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     opacity: 0.8,
   },
   resistButtonText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
@@ -1340,18 +1340,18 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   giveInButton: {
     flex: 1,
-    backgroundColor: '#F97316',
+    backgroundColor: colors.warning,
     borderRadius: 16,
     paddingVertical: 24,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   giveInButtonText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
@@ -1364,40 +1364,40 @@ const createStyles = (colors: any) => StyleSheet.create({
   motivationText: {
     fontSize: 16,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 8,
   },
   motivationSubtext: {
     fontSize: 16,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   successCard: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: colors.successMuted,
     marginHorizontal: 20,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: '#10B981',
+    borderLeftColor: colors.success,
   },
   successTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#065F46',
+    color: colors.success,
     marginBottom: 8,
   },
   successCompulsion: {
     fontSize: 16,
-    color: '#047857',
+    color: colors.success,
     fontStyle: 'italic',
     marginBottom: 8,
   },
   successMessage: {
     fontSize: 14,
-    color: '#065F46',
+    color: colors.success,
   },
   footer: {
     paddingVertical: 20,
@@ -1411,10 +1411,10 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -1422,13 +1422,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 24,
     width: '100%',
@@ -1443,7 +1443,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     zIndex: 1,
   },
   tipContainer: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.warningMuted,
     borderRadius: 8,
     padding: 16,
     marginBottom: 24,
@@ -1457,14 +1457,14 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   tipText: {
     fontSize: 14,
-    color: '#92400E',
+    color: colors.warning,
     lineHeight: 20,
     flex: 1,
   },
   confirmationTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -1474,37 +1474,37 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   confirmGiveInButton: {
     flex: 1,
-    backgroundColor: '#F97316',
+    backgroundColor: colors.warning,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   confirmGiveInText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   confirmResistButton: {
     flex: 1,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.success,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
   },
   confirmResistText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   // Coping Toolbox Styles
   toolboxOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.overlay,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
   toolboxContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 0,
@@ -1514,7 +1514,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     paddingHorizontal: 24,
     width: '100%',
     height: '90%',
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
@@ -1523,7 +1523,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#D1D5DB',
+    backgroundColor: colors.border,
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -1543,7 +1543,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#1F2937',
+    color: colors.text,
   },
   toolboxCloseButton: {
     padding: 4,
@@ -1551,7 +1551,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   toolboxSubtitle: {
     fontSize: 14,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -1579,15 +1579,15 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: '#FB923C',
   },
   groundingButton: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.success,
   },
   mantrasButton: {
-    backgroundColor: '#8B5CF6',
+    backgroundColor: colors.purple,
   },
   toolButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: colors.textInverse,
   },
   modalScrollContent: {
     flex: 1,
@@ -1607,16 +1607,16 @@ const createStyles = (colors: any) => StyleSheet.create({
   toolTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1F2937',
+    color: colors.text,
   },
   toolDescription: {
     fontSize: 18,
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: 8,
   },
   toolCard: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.primaryMuted,
     borderRadius: 16,
     padding: 40,
     alignItems: 'center',
@@ -1637,13 +1637,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   toolCardTitle: {
     fontSize: 22,
     fontWeight: '600',
-    color: '#4F46E5',
+    color: colors.primary,
     textAlign: 'center',
   },
   howItWorksTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: colors.text,
     marginTop: 8,
   },
   stepsList: {
@@ -1651,11 +1651,11 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   stepText: {
     fontSize: 14,
-    color: '#4F46E5',
+    color: colors.primary,
     lineHeight: 20,
   },
   startButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -1666,25 +1666,25 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 16,
   },
   startButtonText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 16,
     fontWeight: '600',
   },
   activeSession: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: colors.successMuted,
     borderRadius: 8,
     padding: 16,
     marginTop: 16,
   },
   activeSessionText: {
     fontSize: 14,
-    color: '#065F46',
+    color: colors.success,
     textAlign: 'center',
     lineHeight: 20,
   },
   breathingInstructions: {
     fontSize: 14,
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginTop: 16,
@@ -1701,24 +1701,24 @@ const createStyles = (colors: any) => StyleSheet.create({
   groundingNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#4F46E5',
+    color: colors.primary,
     width: 32,
     textAlign: 'center',
   },
   groundingText: {
     fontSize: 16,
-    color: '#1F2937',
+    color: colors.text,
     flex: 1,
   },
   groundingInstructions: {
     fontSize: 14,
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
     marginTop: 16,
   },
   mantraCard: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.primaryMuted,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
@@ -1726,27 +1726,27 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   mantraText: {
     fontSize: 18,
-    color: '#4F46E5',
+    color: colors.primary,
     textAlign: 'center',
     fontStyle: 'italic',
     lineHeight: 24,
   },
   newMantraButton: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   newMantraButtonText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },
   mantrasListTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: colors.text,
     marginTop: 24,
     marginBottom: 12,
   },
@@ -1754,33 +1754,33 @@ const createStyles = (colors: any) => StyleSheet.create({
     maxHeight: 200,
   },
   mantraListItem: {
-    backgroundColor: '#F9FAFB',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
   },
   mantraListItemActive: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: colors.primaryMuted,
     borderWidth: 1,
-    borderColor: '#4F46E5',
+    borderColor: colors.primary,
   },
   mantraListText: {
     fontSize: 14,
-    color: '#6B7280',
+    color: colors.textSecondary,
   },
   mantraListTextActive: {
-    color: '#4F46E5',
+    color: colors.primary,
     fontWeight: '500',
   },
   closeToolboxButton: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 24,
   },
   closeToolboxButtonText: {
-    color: '#6B7280',
+    color: colors.textSecondary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -1789,28 +1789,28 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 16,
   },
   groundingTechniqueButton: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.surfaceSecondary,
     borderRadius: 8,
     paddingVertical: 16,
     paddingHorizontal: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: colors.border,
   },
   selectedGroundingButton: {
-    backgroundColor: '#1F2937',
-    borderColor: '#1F2937',
+    backgroundColor: colors.text,
+    borderColor: colors.text,
   },
   groundingTechniqueText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: colors.text,
   },
   selectedGroundingText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
   },
   stopSessionButton: {
-    backgroundColor: '#DC2626',
+    backgroundColor: colors.error,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 24,
@@ -1818,7 +1818,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 16,
   },
   stopSessionText: {
-    color: '#FFFFFF',
+    color: colors.textInverse,
     fontSize: 14,
     fontWeight: '600',
   },

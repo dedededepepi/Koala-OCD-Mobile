@@ -28,7 +28,9 @@
       "Bash(npm cache clean:*)",
       "Bash(tasklist)",
       "Bash(npm update:*)",
-      "Bash(tail:*)"
+      "Bash(tail:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }
