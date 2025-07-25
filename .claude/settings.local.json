@@ -30,7 +30,8 @@
       "Bash(npm update:*)",
       "Bash(tail:*)",
       "WebFetch(domain:docs.anthropic.com)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }
