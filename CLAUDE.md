@@ -69,6 +69,39 @@ Based on the package.json in the `project/` directory:
 - The codebase follows functional React patterns with hooks
 - Uses React Native Reanimated for animations and transitions
 
+## Future Claude Notes from Past Claude
+
+### Project Vision & Quality Standards
+- **Competition Target**: This app is designed to compete with top-tier OCD apps like "NOCD" - production quality is non-negotiable
+- **Design Philosophy**: Beautiful, non-cookie-cutter designs; fully-featured screens worthy of production; minimalist, distraction-free interfaces
+
+### Critical Technical Patterns
+- **Tab Bar Accessibility**: Tab bar is enlarged to 96px height for touch accessibility - ALL ScrollViews MUST have 120px bottom padding via contentContainerStyle
+- **Animation Timing**: Wrap setValue() and animation starts in setTimeout(..., 0) to prevent useInsertionEffect warnings in React 18
+- **Modal Warnings**: Use presentationStyle="overFullScreen" with transparent={true} modals to prevent React Native warnings
+- **GIF Support**: Use expo-image (not react-native-fast-image) for animated GIFs - already installed and configured
+
+### State Management Architecture
+- **Persistent Features**: Use Context API for cross-tab persistence (see UrgeSurfContext pattern) - don't use local useState for features that should persist during navigation
+- **Context Pattern**: Provider in _layout.tsx, custom hook in hooks/, components consume via hook
+
+### Urge Surf Feature (Core Differentiator)
+- **5-minute persistent sessions** that continue across tab navigation
+- **GIF background**: Uses koala waves gif.gif via expo-image with proper overlay styling
+- **Rotating tips**: 5 motivational messages with fade animations every 8 seconds
+- **Bottom indicator**: Shows progress with thin blue line above tab bar when active
+
+### Development Workflow
+- **Git Strategy**: User prefers concise commit messages to save tokens - focus on key changes only
+- **Revert Pattern**: User frequently uses `git reset --hard HEAD~1` for quick reverts - ensure atomic commits
+- **Core First**: Always fix core functionality before adding advanced features
+
+### File Organization
+- **Custom Icons**: SVG components in components/ folder (WaveIcon, TimelineIcon, etc.)
+- **Assets**: GIFs in assets/images/gifs/, follow existing folder structure
+- **Path Aliases**: Use @/ prefix for imports (already configured)
+
+
 ## Project Specific Instruction from User
 
 - "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make mobile app screens that are fully featured and worthy for production.

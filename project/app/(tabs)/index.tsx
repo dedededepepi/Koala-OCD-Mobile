@@ -24,6 +24,7 @@ import { KoalaCelebration } from '@/components/KoalaCelebration';
 import { format } from 'date-fns';
 import { DraggableUrgeSurfFAB } from '@/components/DraggableUrgeSurfFAB';
 import { useUrgeSurfSession } from '@/hooks/useUrgeSurfSession';
+import { useTheme } from '@/hooks/useTheme';
 
 const { width: screenWidth } = Dimensions.get('window');
 const horizontalPadding = 40; // 20px on each side
@@ -61,6 +62,7 @@ const CopingToolboxIcon = ({ size = 24, color = "#FFFFFF" }) => (
 );
 
 export default function TrackScreen() {
+  const { colors } = useTheme();
   const { session, startSession, stopSession, registerOpenCallback } = useUrgeSurfSession();
   const [todayCount, setTodayCount] = useState(3);
   const [todayResisted, setTodayResisted] = useState(2);
@@ -129,20 +131,22 @@ export default function TrackScreen() {
     if (session.active) {
       const tipInterval = setInterval(() => {
         // Fade out
-        Animated.timing(tipOpacity, {
-          toValue: 0,
-          duration: 800,
-          useNativeDriver: true,
-        }).start(() => {
-          // Change tip
-          setCurrentTipIndex(prev => (prev + 1) % urgeSurfTips.length);
-          // Fade in
+        setTimeout(() => {
           Animated.timing(tipOpacity, {
-            toValue: 1,
+            toValue: 0,
             duration: 800,
             useNativeDriver: true,
-          }).start();
-        });
+          }).start(() => {
+            // Change tip
+            setCurrentTipIndex(prev => (prev + 1) % urgeSurfTips.length);
+            // Fade in
+            Animated.timing(tipOpacity, {
+              toValue: 1,
+              duration: 800,
+              useNativeDriver: true,
+            }).start();
+          });
+        }, 0);
       }, 8000); // Change tip every 8 seconds
 
       return () => clearInterval(tipInterval);
@@ -160,20 +164,22 @@ export default function TrackScreen() {
     if (successReminders.length > 1) {
       const interval = setInterval(() => {
         // Fade out
-        Animated.timing(reminderOpacity, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() => {
-          // Change reminder
-          setCurrentReminderIndex(prev => (prev + 1) % successReminders.length);
-          // Fade in
+        setTimeout(() => {
           Animated.timing(reminderOpacity, {
-            toValue: 1,
+            toValue: 0,
             duration: 500,
             useNativeDriver: true,
-          }).start();
-        });
+          }).start(() => {
+            // Change reminder
+            setCurrentReminderIndex(prev => (prev + 1) % successReminders.length);
+            // Fade in
+            Animated.timing(reminderOpacity, {
+              toValue: 1,
+              duration: 500,
+              useNativeDriver: true,
+            }).start();
+          });
+        }, 0);
       }, 10000); // 10 seconds
 
       return () => clearInterval(interval);
@@ -183,6 +189,34 @@ export default function TrackScreen() {
   const loadSettings = async () => {
     const userSettings = await storageService.getSettings();
     setSettings(userSettings);
+  };
+
+  const triggerHaptic = (type: 'light' | 'medium' | 'heavy' | 'success' | 'warning' | 'error' | 'selection') => {
+    if (Platform.OS !== 'web' && settings?.haptics) {
+      switch (type) {
+        case 'light':
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          break;
+        case 'medium':
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          break;
+        case 'heavy':
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          break;
+        case 'success':
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          break;
+        case 'warning':
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+          break;
+        case 'error':
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+          break;
+        case 'selection':
+          Haptics.selectionAsync();
+          break;
+      }
+    }
   };
 
   const loadTodayStats = async () => {
@@ -206,25 +240,25 @@ export default function TrackScreen() {
   };
 
   const handleCompulsionSelect = (compulsion: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('selection'); // iOS-style selection feedback
     setSelectedCompulsion(compulsion);
   };
 
   const animateButton = () => {
-    Animated.sequence([
-      Animated.timing(buttonScale, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(buttonScale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    setTimeout(() => {
+      Animated.sequence([
+        Animated.timing(buttonScale, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(buttonScale, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 0);
   };
 
   const logTrigger = async (wasResisted: boolean) => {
@@ -233,9 +267,8 @@ export default function TrackScreen() {
     setIsLoading(true);
     animateButton();
     
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+    // Use success haptic for resist (positive reinforcement), warning for give in
+    triggerHaptic(wasResisted ? 'success' : 'warning');
 
     const trigger = {
       id: Date.now().toString(),
@@ -265,9 +298,7 @@ export default function TrackScreen() {
   };
 
   const handleGiveInPress = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setCurrentTip(Math.floor(Math.random() * motivationalTips.length));
     setShowGiveInModal(true);
   };
@@ -278,76 +309,72 @@ export default function TrackScreen() {
   };
 
   const handleCancelGiveIn = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setShowGiveInModal(false);
     
     // Animate the Resist button to be temporarily larger
-    Animated.sequence([
-      Animated.timing(resistButtonScale, {
-        toValue: 1.1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.delay(1000),
-      Animated.timing(resistButtonScale, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    setTimeout(() => {
+      Animated.sequence([
+        Animated.timing(resistButtonScale, {
+          toValue: 1.1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.delay(1000),
+        Animated.timing(resistButtonScale, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 0);
 
     // Start glow animation
     startGlowAnimation();
   };
 
   const startGlowAnimation = useCallback(() => {
-    resistGlowAnimation.setValue(0);
-    Animated.timing(resistGlowAnimation, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: false,
-    }).start(() => {
-      // Repeat the glow animation 2 more times
+    setTimeout(() => {
+      resistGlowAnimation.setValue(0);
       Animated.timing(resistGlowAnimation, {
-        toValue: 0,
+        toValue: 1,
         duration: 2000,
         useNativeDriver: false,
       }).start(() => {
+        // Repeat the glow animation 2 more times
         Animated.timing(resistGlowAnimation, {
-          toValue: 1,
+          toValue: 0,
           duration: 2000,
           useNativeDriver: false,
         }).start(() => {
           Animated.timing(resistGlowAnimation, {
-            toValue: 0,
+            toValue: 1,
             duration: 2000,
             useNativeDriver: false,
-          }).start();
+          }).start(() => {
+            Animated.timing(resistGlowAnimation, {
+              toValue: 0,
+              duration: 2000,
+              useNativeDriver: false,
+            }).start();
+          });
         });
       });
-    });
+    }, 0);
   }, [resistGlowAnimation]);
 
   const handleCopingToolboxPress = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setShowCopingToolbox(true);
   };
 
   const handleToolSelect = (tool: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setSelectedTool(tool);
   };
 
   const handleCloseCopingToolbox = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setShowCopingToolbox(false);
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
@@ -356,9 +383,7 @@ export default function TrackScreen() {
   };
 
   const startBreathing = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+    triggerHaptic('medium');
     setBreathingActive(true);
     setBreathingPhase('inhale');
     setBreathingCount(4);
@@ -405,9 +430,7 @@ export default function TrackScreen() {
     // Prevent starting multiple sessions
     if (session.active) return;
     
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
+    triggerHaptic('medium');
     console.log('Starting Urge Surf session...');
     startSession();
     // Keep user on the Urge Surf page - don't close the modal
@@ -417,16 +440,12 @@ export default function TrackScreen() {
   // Timer effect is now handled in _layout.tsx context
 
   const getNewMantra = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setCurrentMantra(prev => (prev + 1) % mantras.length);
   };
 
   const handleGroundingTechniqueSelect = (technique: string) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setSelectedGroundingTechnique(technique);
   };
 
@@ -436,18 +455,14 @@ export default function TrackScreen() {
     if (nativeEvent.state === State.END) {
       // If user swiped down more than 100 pixels with enough velocity
       if (nativeEvent.translationY > 100 || nativeEvent.velocityY > 500) {
-        if (Platform.OS !== 'web') {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
+        triggerHaptic('light');
         handleCloseCopingToolbox();
       }
     }
   };
 
   const handleBackToTools = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    triggerHaptic('light');
     setSelectedTool(null);
     setSelectedGroundingTechnique(null);
     setBreathingActive(false);
@@ -468,10 +483,10 @@ export default function TrackScreen() {
 
   const successRate = todayCount > 0 ? Math.round((todayResisted / todayCount) * 100) : 67;
   const targetCount = settings?.dailyTarget || 15;
+  const styles = createStyles(colors);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
       
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
@@ -1146,10 +1161,10 @@ export default function TrackScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: colors.background,
   },
   scrollView: {
     flex: 1,

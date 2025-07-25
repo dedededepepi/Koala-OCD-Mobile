@@ -19,7 +19,16 @@
       "Bash(npm start)",
       "Bash(npm run:*)",
       "Bash(npm install:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(claude doctor)",
+      "Bash(claude --version)",
+      "Bash(icacls:*)",
+      "Bash(npm config:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(tasklist)",
+      "Bash(npm update:*)",
+      "Bash(tail:*)"
     ],
     "deny": []
   }

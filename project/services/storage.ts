@@ -11,8 +11,10 @@ export interface Trigger {
 }
 
 export interface UserSettings {
-  darkMode: boolean;
+  darkMode: boolean; // Keep for backward compatibility
+  themeMode: 'light' | 'dark' | 'system';
   notifications: boolean;
+  haptics: boolean;
   dailyTarget: number;
   reminderTime?: string;
 }
@@ -100,16 +102,27 @@ class StorageService {
   async getSettings(): Promise<UserSettings> {
     try {
       const data = await AsyncStorage.getItem(SETTINGS_KEY);
-      return data ? JSON.parse(data) : {
+      const settings = data ? JSON.parse(data) : {
         darkMode: false,
+        themeMode: 'system' as const,
         notifications: true,
+        haptics: true,
         dailyTarget: 15,
       };
+      
+      // Migration: if themeMode doesn't exist, use darkMode value
+      if (!settings.themeMode) {
+        settings.themeMode = settings.darkMode ? 'dark' : 'light';
+      }
+      
+      return settings;
     } catch (error) {
       console.error('Error loading settings:', error);
       return {
         darkMode: false,
+        themeMode: 'system' as const,
         notifications: true,
+        haptics: true,
         dailyTarget: 15,
       };
     }

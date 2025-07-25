@@ -10,11 +10,15 @@ import {
   Alert,
   Share,
   Platform,
+  Vibration,
+  Modal,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { 
   Settings as SettingsIcon, 
   Sun, 
+  Moon,
+  Smartphone,
   Download, 
   Upload, 
   Trash2, 
@@ -22,16 +26,20 @@ import {
   Heart,
   Wrench,
   Bell,
-  Target
+  Target,
+  Check
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { storageService, UserSettings } from '@/services/storage';
+import { useTheme, ThemeMode } from '@/hooks/useTheme';
 
 export default function SettingsScreen() {
-  const [darkMode, setDarkMode] = useState(false);
+  const { colors, isDark, themeMode, setThemeMode, systemTheme } = useTheme();
   const [notifications, setNotifications] = useState(true);
+  const [haptics, setHaptics] = useState(true);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   React.useEffect(() => {
     loadSettings();
@@ -40,13 +48,59 @@ export default function SettingsScreen() {
   const loadSettings = async () => {
     const userSettings = await storageService.getSettings();
     setSettings(userSettings);
-    setDarkMode(userSettings.darkMode);
     setNotifications(userSettings.notifications);
+    setHaptics(userSettings.haptics);
+  };
+
+  const triggerHapticForToggle = () => {
+    if (Platform.OS !== 'web' && haptics) {
+      // Use selection feedback for toggles - feels more natural like iOS switches
+      Haptics.selectionAsync();
+    }
+  };
+
+  const testHapticForce = () => {
+    console.log('Force testing haptic - ignoring settings');
+    if (Platform.OS !== 'web') {
+      console.log('Testing all haptic types for Expo Go compatibility...');
+      
+      // Test 1: Selection feedback (often works in Expo Go)
+      Haptics.selectionAsync()
+        .then(() => console.log('Selection haptic success'))
+        .catch(err => console.log('Selection haptic error:', err));
+      
+      setTimeout(() => {
+        // Test 2: Warning notification
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning)
+          .then(() => console.log('Warning haptic success'))
+          .catch(err => console.log('Warning haptic error:', err));
+      }, 300);
+      
+      setTimeout(() => {
+        // Test 3: Error notification  
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error)
+          .then(() => console.log('Error haptic success'))
+          .catch(err => console.log('Error haptic error:', err));
+      }, 600);
+      
+      setTimeout(() => {
+        // Test 4: React Native Vibration API (works better in Expo Go)
+        console.log('Testing React Native Vibration API...');
+        try {
+          Vibration.vibrate(200); // 200ms vibration
+          console.log('RN Vibration success');
+        } catch (err) {
+          console.log('RN Vibration error:', err);
+        }
+      }, 900);
+    } else {
+      console.log('Cannot test haptic - running on web');
+    }
   };
 
   const updateSetting = async (key: keyof UserSettings, value: any) => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== 'web' && haptics) {
+      Haptics.selectionAsync(); // iOS-style settings feedback
     }
     
     await storageService.updateSettings({ [key]: value });
@@ -61,7 +115,7 @@ export default function SettingsScreen() {
       const dataString = await storageService.exportData();
       
       if (Platform.OS !== 'web') {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Removed for testing
         
         // Use Share API on mobile
         await Share.share({
@@ -94,9 +148,7 @@ export default function SettingsScreen() {
   };
 
   const handleImportData = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (Platform.OS !== 'web' && haptics) { Haptics.selectionAsync(); }
     
     Alert.alert(
       'Import Data',
@@ -115,9 +167,7 @@ export default function SettingsScreen() {
   };
 
   const handleClearData = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    }
+    if (Platform.OS !== 'web' && haptics) { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); }
     
     Alert.alert(
       'Clear All Data',
@@ -144,9 +194,7 @@ export default function SettingsScreen() {
   };
 
   const handleOpenQueue = () => {
-    if (Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
+    if (Platform.OS !== 'web' && haptics) { Haptics.selectionAsync(); }
     
     Alert.alert(
       'Developer Tools',
@@ -155,13 +203,14 @@ export default function SettingsScreen() {
     );
   };
 
+  const styles = createStyles(colors);
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
       
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <SettingsIcon size={28} color="#4F46E5" />
+          <SettingsIcon size={28} color={colors.primary} />
           <Text style={styles.title}>Settings</Text>
         </View>
         <Text style={styles.subtitle}>
@@ -173,40 +222,44 @@ export default function SettingsScreen() {
         {/* Appearance */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <Sun size={20} color="#F59E0B" />
-            <Text style={styles.cardTitle}>Appearance</Text>
+            <Sun size={20} color={colors.warning} />
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Appearance</Text>
           </View>
-          <Text style={styles.cardSubtitle}>
+          <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>
             Customize the app's visual appearance
           </Text>
           
-          <View style={styles.settingItem}>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            onPress={() => setShowThemeModal(true)}
+          >
             <View style={styles.settingLeft}>
-              <Sun size={20} color="#F59E0B" />
+              {themeMode === 'system' ? (
+                <Smartphone size={20} color={colors.primary} />
+              ) : themeMode === 'dark' ? (
+                <Moon size={20} color={colors.primary} />
+              ) : (
+                <Sun size={20} color={colors.primary} />
+              )}
               <View style={styles.settingContent}>
-                <Text style={styles.settingTitle}>Dark Mode</Text>
-                <Text style={styles.settingDescription}>
-                  Switch between light and dark themes
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Theme</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                  {themeMode === 'system' ? `Auto (${systemTheme})` : 
+                   themeMode === 'dark' ? 'Dark' : 'Light'}
                 </Text>
               </View>
             </View>
-            <Switch
-              value={darkMode}
-              onValueChange={(value) => {
-                setDarkMode(value);
-                updateSetting('darkMode', value);
-              }}
-              trackColor={{ false: '#E5E7EB', true: '#4F46E5' }}
-              thumbColor={darkMode ? '#FFFFFF' : '#FFFFFF'}
-            />
-          </View>
+            <Text style={[styles.settingValue, { color: colors.primary }]}>
+              {themeMode === 'system' ? 'Auto' : themeMode === 'dark' ? 'Dark' : 'Light'}
+            </Text>
+          </TouchableOpacity>
           
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Bell size={20} color="#F59E0B" />
+              <Bell size={20} color={colors.warning} />
               <View style={styles.settingContent}>
-                <Text style={styles.settingTitle}>Notifications</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Notifications</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Receive reminders and encouragement
                 </Text>
               </View>
@@ -224,10 +277,33 @@ export default function SettingsScreen() {
           
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Target size={20} color="#F59E0B" />
+              <Wrench size={20} color={colors.warning} />
               <View style={styles.settingContent}>
-                <Text style={styles.settingTitle}>Daily Target</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Haptic Feedback</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                  Feel subtle vibrations on button presses
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={haptics}
+              onValueChange={(value) => {
+                // Test haptic feedback when toggling the haptic setting itself
+                triggerHapticForToggle();
+                setHaptics(value);
+                updateSetting('haptics', value);
+              }}
+              trackColor={{ false: '#E5E7EB', true: '#4F46E5' }}
+              thumbColor={haptics ? '#FFFFFF' : '#FFFFFF'}
+            />
+          </View>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Target size={20} color={colors.warning} />
+              <View style={styles.settingContent}>
+                <Text style={[styles.settingTitle, { color: colors.text }]}>Daily Target</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Current target: {settings?.dailyTarget || 15} compulsions
                 </Text>
               </View>
@@ -376,6 +452,22 @@ export default function SettingsScreen() {
           
           <View style={styles.developerSection}>
             <View style={styles.developerLeft}>
+              <Text style={styles.developerTitle}>Test Haptic Feedback</Text>
+              <Text style={styles.developerDescription}>
+                Force test haptic vibration (ignores settings)
+              </Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.developerButton}
+              onPress={testHapticForce}
+            >
+              <Wrench size={16} color="#FFFFFF" />
+              <Text style={styles.developerButtonText}>Test Haptic</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.developerSection}>
+            <View style={styles.developerLeft}>
               <Text style={styles.developerTitle}>Quirk Fixer Queue</Text>
               <Text style={styles.developerDescription}>
                 Report UI bugs and annoyances with pre-filled prompts
@@ -391,17 +483,78 @@ export default function SettingsScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Theme Selection Modal */}
+      <Modal
+        visible={showThemeModal}
+        transparent={true}
+        animationType="fade"
+        presentationStyle="overFullScreen"
+        onRequestClose={() => setShowThemeModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.themeModal, { backgroundColor: colors.cardBackground }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Choose Theme</Text>
+            
+            {(['light', 'dark', 'system'] as ThemeMode[]).map((mode) => (
+              <TouchableOpacity
+                key={mode}
+                style={[
+                  styles.themeOption,
+                  themeMode === mode && { backgroundColor: colors.primaryMuted }
+                ]}
+                onPress={() => {
+                  setThemeMode(mode);
+                  setShowThemeModal(false);
+                }}
+              >
+                <View style={styles.themeOptionLeft}>
+                  {mode === 'system' ? (
+                    <Smartphone size={24} color={colors.primary} />
+                  ) : mode === 'dark' ? (
+                    <Moon size={24} color={colors.primary} />
+                  ) : (
+                    <Sun size={24} color={colors.primary} />
+                  )}
+                  <View style={styles.themeOptionContent}>
+                    <Text style={[styles.themeOptionTitle, { color: colors.text }]}>
+                      {mode === 'system' ? 'Auto' : mode === 'dark' ? 'Dark' : 'Light'}
+                    </Text>
+                    <Text style={[styles.themeOptionDescription, { color: colors.textSecondary }]}>
+                      {mode === 'system' ? `Matches system (${systemTheme})` :
+                       mode === 'dark' ? 'Dark theme with deep colors' :
+                       'Light theme with bright colors'}
+                    </Text>
+                  </View>
+                </View>
+                {themeMode === mode && (
+                  <Check size={20} color={colors.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+            
+            <TouchableOpacity
+              style={[styles.modalCloseButton, { backgroundColor: colors.buttonSecondary }]}
+              onPress={() => setShowThemeModal(false)}
+            >
+              <Text style={[styles.modalCloseButtonText, { color: colors.buttonSecondaryText }]}>
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.background,
   },
   header: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: colors.background,
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 24,
@@ -417,12 +570,12 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     fontFamily: 'NotoSansJP-Bold',
-    color: '#1F2937',
+    color: colors.text,
   },
   subtitle: {
     fontSize: 16,
     fontFamily: 'NotoSansJP-Regular',
-    color: '#6B7280',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   content: {
@@ -433,11 +586,11 @@ const styles = StyleSheet.create({
     paddingBottom: 120, // Extra space above tab bar
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.cardBackground,
     borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -600,5 +753,69 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+  settingValue: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  themeModal: {
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'NotoSansJP-Bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  themeOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  themeOptionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 16,
+  },
+  themeOptionContent: {
+    flex: 1,
+  },
+  themeOptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NotoSansJP-SemiBold',
+    marginBottom: 2,
+  },
+  themeOptionDescription: {
+    fontSize: 14,
+    fontFamily: 'NotoSansJP-Regular',
+  },
+  modalCloseButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  modalCloseButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NotoSansJP-SemiBold',
   },
 });

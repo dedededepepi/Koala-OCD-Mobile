@@ -9,8 +9,10 @@ import { StatsIcon } from '@/components/StatsIcon';
 import { SettingsIcon } from '@/components/SettingsIcon';
 import { UrgeSurfContext, UrgeSurfSession } from '@/hooks/useUrgeSurfSession';
 import { UrgeSurfIndicator } from '@/components/UrgeSurfIndicator';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
   const [urgeSurfSession, setUrgeSurfSession] = useState<UrgeSurfSession>({
     active: false,
     timeLeft: 300,
@@ -101,15 +103,15 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.tabBarBackground,
           borderTopWidth: 1,
-          borderTopColor: '#f1f5f9',
+          borderTopColor: colors.tabBarBorder,
           paddingTop: 24,
           paddingBottom: 24,
           height: 96,
         },
-        tabBarActiveTintColor: '#14B8A6',
-        tabBarInactiveTintColor: '#64748b',
+        tabBarActiveTintColor: colors.tabBarActive,
+        tabBarInactiveTintColor: colors.tabBarInactive,
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '500',
